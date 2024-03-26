@@ -55,6 +55,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(inversedBy: 'users')]
     private ?Campus $isAttachedTo = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $username = null;
+
     public function __construct()
     {
         $this->isRegister = new ArrayCollection();
@@ -246,6 +249,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsAttachedTo(?Campus $isAttachedTo): static
     {
         $this->isAttachedTo = $isAttachedTo;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
 
         return $this;
     }
