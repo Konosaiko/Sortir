@@ -31,6 +31,14 @@ class Etat
         return $this->id;
     }
 
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+
     /**
      * @return Collection<int, Sortie>
      */
@@ -38,7 +46,6 @@ class Etat
     {
         return $this->sorties;
     }
-
 
 
     public function addSortie(Sortie $sortie): static
