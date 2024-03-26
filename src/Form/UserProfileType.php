@@ -27,7 +27,7 @@ class UserProfileType extends AbstractType
                     new NotBlank([
                         'message' => 'Please enter a password',
                     ]),
-                    // TODO : contrainte de complexité mot de passe
+                    // TO DO :  contrainte de complexité mot de passe
                 ],
             ])
             ->add('firstName', TextType::class)
