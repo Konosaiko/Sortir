@@ -38,6 +38,10 @@ class SortieFixtures extends Fixture
             $etat = $this->getReference('etat_' . $faker->numberBetween(0, count($etats) - 1));
             $sortie->setEtat($etat);
 
+            // Récupérer un lieu aléatoire parmi les références enregistrées
+            $lieu = $this->getReference('lieu_' . $faker->numberBetween(0, 9));
+            $sortie->setAddress($lieu);
+
             $manager->persist($sortie);
         }
 

@@ -134,6 +134,11 @@ class Sortie
         return $this;
     }
 
+    public function getCity(): ?Ville
+    {
+        return $this->address ? $this->address->getCity() : null;
+    }
+
     public function getNom(): ?string
     {
         return $this->nom;
