@@ -26,12 +26,19 @@ class SortieListController extends AbstractController
 
         $selectedCampusId = $selectedCampusId ?: '';
 
-        if ($selectedCampusId) {
-            $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $selectedCampusId]);
-        } else {
-            // Si aucun campus n'est sélectionné, afficher toutes les sorties
-            $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
+        $nom = $request->query->get('nom');
+
+        $criteria = [];
+
+        if ($nom) {
+            $criteria['nom'] = $nom;
         }
+
+        if ($selectedCampusId) {
+            $criteria['place'] = $selectedCampusId;
+        }
+
+        $sorties = $this->entityManager->getRepository(Sortie::class)->findBy($criteria, ['nom' => 'ASC']);
 
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
 

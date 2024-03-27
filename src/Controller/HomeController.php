@@ -46,10 +46,36 @@ class HomeController extends AbstractController
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
         $sorties = [];
 
+        $nomRecherche = $request->query->get('nom'); // Récupérer le nom de recherche depuis la requête
+
         if ($selectedCampus) {
-            $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $selectedCampus]);
+            if ($nomRecherche) {
+                // Si un nom de recherche est spécifié, filtrer les sorties par nom et campus
+                $sorties = $this->entityManager->getRepository(Sortie::class)
+                    ->createQueryBuilder('s')
+                    ->where('s.place = :selectedCampus')
+                    ->andWhere('s.nom LIKE :nomRecherche')
+                    ->setParameter('selectedCampus', $selectedCampus)
+                    ->setParameter('nomRecherche', '%' . $nomRecherche . '%')
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                // Sinon, récupérer toutes les sorties pour le campus sélectionné
+                $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $selectedCampus]);
+            }
         } else {
-            $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
+            if ($nomRecherche) {
+                // Si un nom de recherche est spécifié, filtrer toutes les sorties par nom
+                $sorties = $this->entityManager->getRepository(Sortie::class)
+                    ->createQueryBuilder('s')
+                    ->where('s.nom LIKE :nomRecherche')
+                    ->setParameter('nomRecherche', '%' . $nomRecherche . '%')
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                // Sinon, récupérer toutes les sorties
+                $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
+            }
         }
 
         return $this->render('home/index.html.twig', [
