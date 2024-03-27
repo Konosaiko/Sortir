@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sortie{% endblock %}
+
+{% block body %}
+    <h1>Sortie : {{ sortie.nom }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Date et heure de debut</th>
+                <td>{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Durée</th>
+                <td>{{ sortie.duration }}</td>
+            </tr>
+            <tr>
+                <th>Date limite d'inscription</th>
+                <td>{{ sortie.dateLimite ? sortie.dateLimite|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Nombre maximum de participants</th>
+                <td>{{ sortie.registerLimit }}</td>
+            </tr>
+            <tr>
+                <th>Infos</th>
+                <td>{{ sortie.infos }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_sortie_list') }}">Retour à l'accueil</a>
+
+    <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">edit</a>
+
+    {{ include('sortie_create/_delete_form.html.twig') }}
+{% endblock %}

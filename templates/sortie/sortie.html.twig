@@ -1,0 +1,59 @@
+{# templates/sortie/sortie.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des sorties{% endblock %}
+
+{% block body %}
+    <h1>Liste des sorties</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Nom de la sortie</th>
+            <th>Date de la sortie</th>
+            <th>Durée</th>
+            <th>Clôture</th>
+            <th>Limite d'inscription</th>
+            <th>État</th>
+            <th>Campus</th>
+            <th>Organisateur</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for sortie in sorties %}
+            {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
+                {% if sortie.etat.libelle != 'En création' or sortie.user == app.user %}
+                    <tr>
+                        <td>{{ sortie.nom }}</td>
+                        <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                        <td>{{ sortie.duration }}</td>
+                        <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
+                        <td>{{ sortie.registerLimit }}</td>
+                        <td>{{ sortie.etat.libelle }}</td>
+                        <td>{{ sortie.place.nom }}</td>
+                        <td>{{ sortie.user.username }}</td>
+                        {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Clôturée' %}
+                            <td>
+                                <!-- Liens pour les sorties en cours ou clôturées -->
+                            </td>
+                        {% elseif sortie.etat.libelle == 'En création' and sortie.user == app.user %}
+                            <td>
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">show</a>
+                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">modifier</a>
+                                <a href="#">publier</a>
+                                <a href="#">supprimer</a>
+                            </td>
+                        {% elseif sortie.etat.libelle == 'Ouverte' and sortie.user == app.user %}
+                            <td>
+                                <!-- Liens pour les sorties ouvertes auxquelles l'utilisateur peut s'inscrire -->
+                            </td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
