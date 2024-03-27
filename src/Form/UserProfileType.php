@@ -9,10 +9,12 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserProfileType extends AbstractType
@@ -21,13 +23,20 @@ class UserProfileType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class)
-            ->add('plainPassword', PasswordType::class, [
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
                 'mapped' => false,
+                'required' => false,
+                'first_options'  => ['label' => 'Nouveau mot de passe (laisser vide pour ne pas changer)'],
+                'second_options' => ['label' => 'Confirmation du nouveau mot de passe'],
+                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Please enter a password',
+                    new Length([
+                        'min' => 6,
+                        'max' => 4096,
+                        'minMessage' => 'Votre mot de passe doit comporter au moins {{ limit }} caractères.',
+                        'maxMessage' => 'Votre mot de passe ne peut pas dépasser {{ limit }} caractères.',
                     ]),
-                    // TO DO :  contrainte de complexité mot de passe
                 ],
             ])
             ->add('firstName', TextType::class)

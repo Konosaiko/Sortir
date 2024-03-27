@@ -16,30 +16,23 @@ class ProfileController extends AbstractController
     #[Route('/profile', name: 'app_profile')]
     public function index(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
-        $user = $this->getUser(); // Récupère l'utilisateur connecté
-
-        if (!$user instanceof User) {
-            throw new \LogicException('L\'utilisateur n\'est pas connecté.');
-        }
+        $user = $this->getUser();
 
         $form = $this->createForm(UserProfileType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Si un nouveau mot de passe est fourni, le hash et le met à jour
-            if ($form->get('plainPassword')->getData()) {
-                $user->setPassword(
-                    $passwordHasher->hashPassword(
-                        $user,
-                        $form->get('plainPassword')->getData()
-                    )
-                );
+            // Vérifie si un nouveau mot de passe a été fourni
+            $newPassword = $form->get('plainPassword')->getData();
+            if (!empty($newPassword)) {
+                $hashedPassword = $passwordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($hashedPassword);
             }
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Profile updated successfully.');
+            $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
 
             return $this->redirectToRoute('app_profile');
         }
@@ -48,4 +41,5 @@ class ProfileController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
 }
