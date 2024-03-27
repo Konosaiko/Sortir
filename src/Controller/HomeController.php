@@ -31,6 +31,8 @@ class HomeController extends AbstractController
         // Récupérer le campus de l'utilisateur connecté
         $selectedCampusNom = $user->getCampus();
 
+        $selectedCampusNom = $user ? $user->getCampus() : null;
+
         $selectedCampusNom = $request->query->get('campus');
 
         $selectedCampus = null;
@@ -87,6 +89,7 @@ class HomeController extends AbstractController
         if ($estOrganisateur) {
             // Récupérer les sorties où l'utilisateur connecté est l'organisateur
             $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['user' => $user]);
+
         }
 
         if ($estTerminees) {
@@ -110,6 +113,7 @@ class HomeController extends AbstractController
             'isAdmin' => $isAdmin,
             'sorties' => $sorties,
             'selectedCampus' => $selectedCampus, // Transmettre le campus sélectionné au template
+            'user' => $user, // Transmettre l'utilisateur connecté au template
         ]);
     }
 }

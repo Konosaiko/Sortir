@@ -30,7 +30,11 @@
                 <select name="campus" id="campus">
                     <option value="">Tous les campus</option>
                     {% for campus in campuses %}
-                        <option value="{{ campus.nom }}" {% if selectedCampus is not null and selectedCampus.nom == campus.nom %}selected{% endif %}>{{ campus.nom }}</option>
+                        {% if user and user.getCampus() == campus %}
+                            <option value="{{ campus.nom }}" selected>{{ campus.nom }}</option>
+                        {% else %}
+                            <option value="{{ campus.nom }}">{{ campus.nom }}</option>
+                        {% endif %}
                     {% endfor %}
                 </select>
                 <input id="recherche" type="text" name="nom" placeholder="Nom de la sortie">
