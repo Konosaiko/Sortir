@@ -3,32 +3,24 @@
 {% block title %}Sortie{% endblock %}
 
 {% block body %}
-    <h1>Sortie</h1>
+    <h1>Sortie : {{ sortie.nom }}</h1>
 
     <table class="table">
         <tbody>
             <tr>
-                <th>Id</th>
-                <td>{{ sortie.id }}</td>
-            </tr>
-            <tr>
-                <th>Nom</th>
-                <td>{{ sortie.nom }}</td>
-            </tr>
-            <tr>
-                <th>DateHeureDebut</th>
+                <th>Date et heure de debut</th>
                 <td>{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
             <tr>
-                <th>Duration</th>
+                <th>Durée</th>
                 <td>{{ sortie.duration }}</td>
             </tr>
             <tr>
-                <th>DateLimite</th>
+                <th>Date limite d'inscription</th>
                 <td>{{ sortie.dateLimite ? sortie.dateLimite|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
             <tr>
-                <th>RegisterLimit</th>
+                <th>Nombre maximum de participants</th>
                 <td>{{ sortie.registerLimit }}</td>
             </tr>
             <tr>
@@ -38,7 +30,7 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_sortie_create_index') }}">back to list</a>
+    <a href="{{ path('app_sortie_list') }}">Retour à l'accueil</a>
 
     <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">edit</a>
 

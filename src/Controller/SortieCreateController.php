@@ -26,14 +26,16 @@ class SortieCreateController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $sortie = new Sortie();
-        $form = $this->createForm(SortieType::class, $sortie);
+        // Récupérer l'utilisateur connecté
+        $user = $this->getUser();
+        $form = $this->createForm(SortieType::class, $sortie, ['user' => $user]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($sortie);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_sortie_create_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/new.html.twig', [
@@ -59,7 +61,7 @@ class SortieCreateController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_sortie_create_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/edit.html.twig', [
@@ -76,6 +78,6 @@ class SortieCreateController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_sortie_create_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
     }
 }

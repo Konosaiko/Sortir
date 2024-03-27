@@ -42,7 +42,9 @@ class SortieType extends AbstractType
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'username',
-                'label' => 'Organisateur : '
+                'label' => 'Organisateur : ',
+                'data' => $options['user'],
+                'disabled' => true,
             ])
             ->add('etat', EntityType::class, [
                 'class' => Etat::class,
@@ -66,6 +68,7 @@ class SortieType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Sortie::class,
+            'user' => null,
         ]);
     }
 }
