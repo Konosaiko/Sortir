@@ -17,6 +17,9 @@ class ProfileController extends AbstractController
     public function index(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
 
         $form = $this->createForm(UserProfileType::class, $user);
         $form->handleRequest($request);
@@ -33,6 +36,7 @@ class ProfileController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
+
 
             return $this->redirectToRoute('app_profile');
         }

@@ -2,12 +2,10 @@
 
 {% block title %}Mise à jour du profil{% endblock %}
 
-
-
-
 {% block body %}
-    <div class="container">
-        <h2>Mise à jour de votre profil</h2>
+    <div class="container mt-4">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
+        <h2 class="mb-3">Mise à jour de votre profil</h2>
 
         {% for flash_message in app.flashes('success') %}
             <div class="alert alert-success" role="alert">
@@ -20,98 +18,86 @@
             </div>
         {% endfor %}
 
-        {{ form_start(form) }}
-        <div class="mb-3">
-            {{ form_label(form.name) }}
-            {{ form_widget(form.name) }}
-            {{ form_errors(form.name) }}
+        {% for field in form %}
+            {# Exclure le champ CSRF Token de l'affichage #}
+            {% if field.vars.name != '_token' and field.vars.name != 'plainPassword' %}
+                <div class="form-group mb-3 {% if field.vars.errors %}has-error{% endif %}">
+                    {{ form_label(field) }}
+                    {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                    {% if field.vars.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form_errors(field) }}
+                        </div>
+                    {% else %}
+                        <small class="form-text text-muted">{{ form_help(field) }}</small>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# Traiter les champs de mot de passe séparément #}
+        <div class="form-group mb-3">
+            {{ form_label(form.plainPassword.first) }}
+            {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.plainPassword.first) }}
+        </div>
+        <div class="form-group mb-3">
+            {{ form_label(form.plainPassword.second) }}
+            {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(form.plainPassword.second) }}
         </div>
 
-        <div class="mb-3">
-            {{ form_label(form.firstName) }}
-            {{ form_widget(form.firstName) }}
-            {{ form_errors(form.firstName) }}
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Mettre à jour</button>
         </div>
-
-        <div class="mb-3">
-            {{ form_label(form.username) }}
-            {{ form_widget(form.username) }}
-            {{ form_errors(form.username) }}
-        </div>
-
-        <div class="mb-3">
-            {{ form_label(form.email) }}
-            {{ form_widget(form.email) }}
-            {{ form_errors(form.email) }}
-        </div>
-
-        <div class="mb-3">
-
-            {{ form_widget(form.plainPassword) }}
-            <small class="form-text text-muted">Laissez vide si vous ne souhaitez pas changer le mot de passe.</small>
-            {{ form_errors(form.plainPassword) }}
-
-
-        </div>
-
-
-
-        <div class="mb-3">
-            {{ form_label(form.phone) }}
-            {{ form_widget(form.phone) }}
-            {{ form_errors(form.phone) }}
-        </div>
-
-        <button type="submit" class="btn btn-primary">Mettre à jour</button>
         {{ form_end(form) }}
     </div>
 
 
 
-    {% block javascripts %}
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const passwordField = document.querySelector('#user_profile_plainPassword_first');
-                const confirmPasswordField = document.querySelector('#user_profile_plainPassword_second');
+<script>
 
-                // Assurez-vous que l'élément passwordError est unique en le sélectionnant ou en le créant une seule fois
-                let passwordError = document.getElementById('passwordError');
-                if (!passwordError) {
-                    passwordError = document.createElement('div');
-                    passwordError.id = 'passwordError';
-                    passwordError.style.color = 'red';
-                    // Vous pouvez choisir de l'ajouter une fois dans le DOM ici, à l'endroit approprié
-                }
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordField = document.querySelector('#user_profile_plainPassword_first');
+            const confirmPasswordField = document.querySelector('#user_profile_plainPassword_second');
 
-                // Function to check password length
-                function checkPasswordLength() {
-                    if (passwordField.value.length > 0 && passwordField.value.length < 6) {
-                        passwordError.textContent = 'Le mot de passe est trop court.';
-                        if (!passwordField.nextElementSibling || passwordField.nextElementSibling.id !== 'passwordError') {
-                            passwordField.parentNode.insertBefore(passwordError, passwordField.nextSibling);
-                        }
-                    } else {
-                        passwordError.textContent = '';
+            let passwordError = document.getElementById('passwordError');
+            if (!passwordError) {
+                passwordError = document.createElement('div');
+                passwordError.id = 'passwordError';
+                passwordError.style.color = 'red';
+            }
+
+            // Function to check password length
+            function checkPasswordLength() {
+                if (passwordField.value.length > 0 && passwordField.value.length < 6) {
+                    passwordError.textContent = 'Le mot de passe est trop court.';
+                    if (!passwordField.nextElementSibling || passwordField.nextElementSibling.id !== 'passwordError') {
+                        passwordField.parentNode.insertBefore(passwordError, passwordField.nextSibling);
                     }
+                } else {
+                    passwordError.textContent = '';
                 }
+            }
 
-                // Function to check if passwords match
-                function checkPasswordsMatch() {
-                    if (passwordField.value && confirmPasswordField.value && passwordField.value !== confirmPasswordField.value) {
-                        passwordError.textContent = 'Les mots de passe ne correspondent pas.';
-                        if (!confirmPasswordField.nextElementSibling || confirmPasswordField.nextElementSibling.id !== 'passwordError') {
-                            confirmPasswordField.parentNode.insertBefore(passwordError, confirmPasswordField.nextSibling);
-                        }
-                    } else {
-                        passwordError.textContent = '';
+            // Function to check if passwords match
+            function checkPasswordsMatch() {
+                if (passwordField.value && confirmPasswordField.value && passwordField.value !== confirmPasswordField.value) {
+                    passwordError.textContent = 'Les mots de passe ne correspondent pas.';
+                    if (!confirmPasswordField.nextElementSibling || confirmPasswordField.nextElementSibling.id !== 'passwordError') {
+                        confirmPasswordField.parentNode.insertBefore(passwordError, confirmPasswordField.nextSibling);
                     }
+                } else {
+                    passwordError.textContent = '';
                 }
+            }
 
-                passwordField.addEventListener('input', checkPasswordLength);
-                confirmPasswordField.addEventListener('input', checkPasswordsMatch);
-            });
+            passwordField.addEventListener('input', checkPasswordLength);
+            confirmPasswordField.addEventListener('input', checkPasswordsMatch);
+        });
+    </script>
 
-        </script>
-    {% endblock %}
+
+
 
 {% endblock %}

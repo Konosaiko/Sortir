@@ -22,7 +22,11 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('firstName', TextType::class)
+            ->add('name', TextType::class)
+            ->add('username', TextType::class)
             ->add('email', EmailType::class)
+            ->add('phone', TelType::class)
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
@@ -39,10 +43,9 @@ class UserProfileType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('firstName', TextType::class)
-            ->add('name', TextType::class)
-            ->add('phone', TelType::class)
-            ->add('username', TextType::class)
+
+
+
 
         ;
     }
