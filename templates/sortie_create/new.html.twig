@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Sortie{% endblock %}
+
+{% block body %}
+    <h1>Créer une sortie</h1>
+
+    {{ include('sortie_create/_form.html.twig') }}
+
+    <a href="{{ path('app_sortie_create_index') }}">back to list</a>
+{% endblock %}

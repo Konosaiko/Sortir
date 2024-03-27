@@ -1,14 +1,64 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block page_title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href=>
+                    <img src="images/logo.png" alt="Logo de l'application">
+                    <span>Sortir.com</span>
+                </a>
+            </div>
+            <ul>
+                {% if isAdmin %}
+                    <li><a href=>Administration</a></li>
+                {% endif %}
+                <li><a href="{{ path('app_home')}}">Accueil</a></li>
+                <li><a href="{{ path('app_profile') }}">Mon Profil</a></li>
+                <li><a href="{{ path('app_logout') }}">Se Déconnecter</a></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-</div>
+    <main>
+
+        <section id="filters">
+            <form action="{{ path('app_sortie_list') }}" method="GET">
+                <label for="campus">Filtrer par campus :</label>
+                <select name="campus" id="campus">
+                    <option value="">Tous les campus</option>
+                    {% for campus in campuses %}
+                        <option value="{{ campus.id }}">{{ campus.nom }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="nom" placeholder="Nom de la sortie">
+                <p>Entre <input type="date" name="date" placeholder="Date 1"> et <input type="date" name="date" placeholder="Date 2"></p>
+                <label for="organisateur">Les sorties dont je suis l'organisateur</label>
+                <input type="checkbox" name="organisateur" id="organisateur">
+
+                <label for="inscrit">Auxquelles je suis inscrit</label>
+                <input type="checkbox" name="inscrit" id="inscrit">
+
+                <label for="non_inscrit">Auxquelles je ne suis pas inscrit</label>
+                <input type="checkbox" name="non_inscrit" id="non_inscrit">
+
+                <label for="terminees">Sorties terminées</label>
+                <input type="checkbox" name="terminees" id="terminees">
+                <button type="submit">Rechercher</button>
+            </form>
+        </section>
+
+        <section id="sorties">
+            {% include 'sortie/sortie.html.twig' with {'sorties': sorties} %}
+        </section>
+
+    </main>
+
+    <footer>
+        <a href="{{ path('app_sortie_create_new') }}">Créer une sortie</a>
+    </footer>
+
+    <!-- Ajoutez vos scripts JavaScript ici -->
 {% endblock %}

@@ -6,6 +6,7 @@ use App\Repository\CampusRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use http\Env\Response;
 
 #[ORM\Entity(repositoryClass: CampusRepository::class)]
 class Campus
@@ -106,4 +107,5 @@ class Campus
 
         return $this;
     }
+
 }

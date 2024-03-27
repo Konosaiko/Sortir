@@ -264,4 +264,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getCampus(): ?Campus
+    {
+        return $this->isAttachedTo;
+    }
 }

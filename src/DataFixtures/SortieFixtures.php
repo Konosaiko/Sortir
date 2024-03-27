@@ -4,12 +4,20 @@ namespace App\DataFixtures;
 
 use App\Entity\Sortie;
 use App\Entity\Etat;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 
-class SortieFixtures extends Fixture
+class SortieFixtures extends Fixture implements DependentFixtureInterface
 {
+    public function getDependencies(): array
+    {
+        return [
+            AppFixtures::class,
+        ];
+    }
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create('fr_FR');
@@ -27,6 +35,11 @@ class SortieFixtures extends Fixture
         // Création des sorties
         for ($i = 0; $i < 20; $i++) {
             $sortie = new Sortie();
+            $users = $manager->getRepository(User::class)->findAll();
+            $randomUser = $users[array_rand($users)];
+            $sortie->setUser($randomUser);
+            $campus = $randomUser->getCampus();
+            $sortie->setPlace($campus);
             $sortie->setNom($faker->sentence($nbWords = 6, $variableNbWords = true));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+2 days', '+1 week')); // Entre 2 jours et 1 semaine à partir de maintenant
             $sortie->setDuration($faker->numberBetween(1, 24) . ' heures');
