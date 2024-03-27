@@ -22,16 +22,26 @@ class SortieCreateController extends AbstractController
         ]);
     }
 
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/new', name: 'app_sortie_create_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $sortie = new Sortie();
-        // Récupérer l'utilisateur connecté
+        // Définir l'utilisateur connecté comme organisateur de la sortie
         $user = $this->getUser();
-        $form = $this->createForm(SortieType::class, $sortie, ['user' => $user]);
+        $sortie->setUser($user);
+
+        $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Traitement du formulaire et enregistrement de la sortie
             $entityManager->persist($sortie);
             $entityManager->flush();
 
@@ -40,7 +50,7 @@ class SortieCreateController extends AbstractController
 
         return $this->render('sortie_create/new.html.twig', [
             'sortie' => $sortie,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
 

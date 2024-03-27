@@ -14,6 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SortieType extends AbstractType
 {
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -33,18 +34,11 @@ class SortieType extends AbstractType
             ->add('infos', null, [
         'label' => "Description : "
     ])
-            ->add('users', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-                'label' => 'Participants : '
-            ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'username',
                 'label' => 'Organisateur : ',
-                'data' => $options['user'],
-                'disabled' => true,
+                'disabled' => true, // Désactivez le champ pour le cacher dans le formulaire
             ])
             ->add('etat', EntityType::class, [
                 'class' => Etat::class,
@@ -68,7 +62,8 @@ class SortieType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Sortie::class,
-            'user' => null,
         ]);
+
+
     }
 }
