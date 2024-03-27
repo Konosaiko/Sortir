@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Campus;
+use App\Entity\Etat;
 use App\Entity\Sortie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,6 +48,11 @@ class HomeController extends AbstractController
         $sorties = [];
 
         $nomRecherche = $request->query->get('nom'); // Récupérer le nom de recherche depuis la requête
+        $dateDebut = $request->query->get('date_debut'); // Récupérer la date de début depuis la requête
+        $dateFin = $request->query->get('date_fin'); // Récupérer la date de fin depuis la requête
+        $estOrganisateur = $request->query->get('organisateur'); // Récupérer la valeur du filtre organisateur
+
+        $estTerminees = $request->query->get('terminees'); // Récupérer la valeur du filtre sorties terminées
 
         if ($selectedCampus) {
             if ($nomRecherche) {
@@ -77,6 +83,26 @@ class HomeController extends AbstractController
                 $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
             }
         }
+
+        if ($estOrganisateur) {
+            // Récupérer les sorties où l'utilisateur connecté est l'organisateur
+            $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['user' => $user]);
+        }
+
+        if ($estTerminees) {
+            // Récupérer l'objet Etat correspondant à "Terminée"
+            $etatTerminee = $this->entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+
+            if ($etatTerminee) {
+                // Si l'objet Etat est trouvé, récupérez les sorties avec cet état
+                $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['etat' => $etatTerminee]);
+            } else {
+                // Gérer le cas où l'état "Terminée" n'est pas trouvé
+                // Peut-être envoyer un message d'erreur ou une liste vide de sorties
+                $sorties = [];
+            }
+        }
+
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
