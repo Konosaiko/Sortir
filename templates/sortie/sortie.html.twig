@@ -9,24 +9,28 @@
     <table>
         <thead>
         <tr>
-            <th> de la sortie</th>
+            <th>Nom de la sortie</th>
             <th>Date de la sortie</th>
             <th>Durée</th>
             <th>Clôture</th>
-            <th>Nombre d'inscrits</th>
+            <th>Limite d'inscription</th>
             <th>État</th>
+            <th>Campus</th>
         </tr>
         </thead>
         <tbody>
         {% for sortie in sorties %}
-            <tr>
-                <td>{{ sortie.nom }}</td>
-                <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
-                <td>{{ sortie.duration }}</td>
-                <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
-                <td>{{ sortie.registerLimit }}</td>
-                <td>{{ sortie.etat.libelle }}</td>
-            </tr>
+            {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
+                <tr>
+                    <td>{{ sortie.nom }}</td>
+                    <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                    <td>{{ sortie.duration }}</td>
+                    <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
+                    <td>{{ sortie.registerLimit }}</td>
+                    <td>{{ sortie.etat.libelle }}</td>
+                    <td>{{ sortie.place.nom }}</td>
+                </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
     </table>

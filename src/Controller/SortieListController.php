@@ -22,18 +22,22 @@ class SortieListController extends AbstractController
     #[Route('/', name: 'app_sortie_list')]
     public function index(Request $request): Response
     {
-        $campusId = $request->query->get('campus');
+        $selectedCampusId = $request->query->get('campus');
 
-        // Récupérer les sorties en fonction du campus sélectionné
-        if ($campusId) {
-            $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $campusId]);
+        $selectedCampusId = $selectedCampusId ?: '';
+
+        if ($selectedCampusId) {
+            $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $selectedCampusId]);
         } else {
             // Si aucun campus n'est sélectionné, afficher toutes les sorties
             $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
         }
 
+        $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
+
         return $this->render('sortie/sortie.html.twig', [
             'sorties' => $sorties,
+            'campuses' => $campuses,
         ]);
     }
 }
