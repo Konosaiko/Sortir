@@ -1,38 +1,80 @@
+{# templates/sortie/detail.html.twig #}
+
 {% extends 'base.html.twig' %}
 
-{% block title %}Sortie{% endblock %}
+{% block title %}Affichage d'une sortie{% endblock %}
 
 {% block body %}
-    <h1>Sortie : {{ sortie.nom }}</h1>
+    {% include 'partials/navbar.html.twig' %}
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Date et heure de debut</th>
-                <td>{{ sortie.dateHeureDebut ? sortie.dateHeureDebut|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Durée</th>
-                <td>{{ sortie.duration }}</td>
-            </tr>
-            <tr>
-                <th>Date limite d'inscription</th>
-                <td>{{ sortie.dateLimite ? sortie.dateLimite|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Nombre maximum de participants</th>
-                <td>{{ sortie.registerLimit }}</td>
-            </tr>
-            <tr>
-                <th>Infos</th>
-                <td>{{ sortie.infos }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="container my-5">
+        <h1 class="mb-4 text-center">Afficher une sortie</h1>
 
-    <a href="{{ path('app_sortie_list') }}">Retour à l'accueil</a>
+        <!-- Section principale avec deux colonnes -->
+        <div class="row mb-4">
+            <!-- Colonne de gauche -->
+            <div class="col-md-6">
+                <div class="p-3 bg-light border">
+                    <p><strong>Nom de la sortie:</strong> {{ sortie.nom }}</p>
+                    <p><strong>Date et heure de la sortie:</strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
+                    <p><strong>Date limite d'inscription:</strong> {{ sortie.dateLimite|date('d/m/Y H:i') }}</p>
+                    <p><strong>Nombre de places:</strong> {{ sortie.registerLimit }}</p>
+                    <p><strong>Durée (en minutes):</strong> {{ sortie.duration }}</p>
+                    <p><strong>Organisateur:</strong>
+                        <a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
+                            {{ sortie.user.username }}
+                        </a>
+                    </p>
+                </div>
+            </div>
 
-    <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">edit</a>
+            <!-- Colonne de droite -->
+            <div class="col-md-6">
+                <div class="p-3 bg-light border">
+                    <p><strong>Campus:</strong> {{ sortie.place.nom }}</p>
+                    <p><strong>Ville:</strong> {{ sortie.address.city.nom }}</p>
+                    <p><strong>Lieu:</strong> {{ sortie.address.nom }}</p>
+                    <p><strong>Rue:</strong> {{ sortie.address.address }}</p>
+                    <p><strong>Code postal:</strong> {{ sortie.address.city.codePostal }}</p>
+                    <p><strong>Latitude / Longitude:</strong> {{ sortie.address.latitude }} / {{ sortie.address.longitude }}</p>
+                </div>
+            </div>
+        </div>
 
-    {{ include('sortie_create/_delete_form.html.twig') }}
+        <!-- Section description et infos -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="p-3 bg-light border">
+                    <h2>Description et infos</h2>
+                    <p>{{ sortie.infos }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau des participants -->
+        <div class="row">
+            <div class="col">
+                <div class="p-3 bg-light border">
+                    <h2>Liste des participants inscrits</h2>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Pseudo</th>
+                            <th>Nom</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in sortie.users %}
+                            <tr>
+                                <td><a href="{{ path('app_user_profile', {'username': user.username}) }}">{{ user.username }}</a></td>
+                                <td>{{ user.name }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
+

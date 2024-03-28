@@ -2,18 +2,15 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <!-- Logo et nom du site à gauche -->
         <a class="navbar-brand" href="{{ path('app_home') }}">
             <img src="{{ asset('images/logosortir.png') }}" alt="Logo" width="50" height="50" class="d-inline-block align-top">
         </a>
         <a class="nav-link" href="{{ path('app_home') }}">Sortir.com</a>
 
-        <!-- Bouton de basculement pour les écrans de petite taille -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Liens de navigation à droite -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
             <div class="navbar-nav">
                 <a class="nav-link active" aria-current="page" href="{{ path('app_home') }}">Accueil</a>
