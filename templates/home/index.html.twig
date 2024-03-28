@@ -3,25 +3,7 @@
 {% block page_title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-    <header>
-        <nav>
-            <div class="logo">
-                <a href=>
-                    <img src="images/logo.png" alt="Logo de l'application">
-                    <span>Sortir.com</span>
-                </a>
-            </div>
-            <ul>
-                {% if isAdmin %}
-                    <li><a href=>Administration</a></li>
-                {% endif %}
-                <li><a href="{{ path('app_home')}}">Accueil</a></li>
-                <li><a href="{{ path('app_profile') }}">Mon Profil</a></li>
-                <li><a href="{{ path('app_logout') }}">Se Déconnecter</a></li>
-            </ul>
-        </nav>
-    </header>
-
+    {% include 'partials/navbar.html.twig' %}
     <main>
 
         <section id="filters">

@@ -3,6 +3,7 @@
 {% block title %}Mise à jour du profil{% endblock %}
 
 {% block body %}
+    {% include 'partials/navbar.html.twig' %}
     <div class="container mt-4">
         {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
         <h2 class="mb-3">Mise à jour de votre profil</h2>
