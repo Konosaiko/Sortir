@@ -23,6 +23,21 @@
                             {{ sortie.user.username }}
                         </a>
                     </p>
+                    {% if sortie.dateHeureDebut > date('now') and sortie.users.contains(app.user) %}
+                        <p><strong>Je suis déjà inscrit à cette sortie : </strong></p>
+                        <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}"
+                           class="btn btn-warning"
+                           onclick="return confirm('Êtes-vous sûr de vouloir vous désister de cette sortie ?');">
+                            Se désister
+                        </a>
+                        {% elseif sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') and sortie.dateHeureDebut > date('now') and not sortie.users.contains(app.user) %}
+                            <p><strong>Je ne suis pas inscrit à cette sortie : </strong></p>
+                                <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}"
+                                   class="btn btn-primary"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir vous inscrire à cette sortie ?');">
+                                    S'inscrire
+                                </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -74,5 +89,6 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 
