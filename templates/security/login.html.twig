@@ -42,3 +42,39 @@
         </div>
     </div>
 {% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const annulerLinks = document.querySelectorAll('.annuler-sortie');
+
+        annulerLinks.forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const sortieId = this.getAttribute('data-sortie-id');
+
+                fetch('/annuler-sortie/' + sortieId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mettre à jour l'interface utilisateur si nécessaire
+                            alert('La sortie a été annulée avec succès.');
+                            // Actualiser la page pour refléter les changements
+                            window.location.reload();
+                        } else {
+                            alert('Une erreur est survenue lors de l\'annulation de la sortie.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la requête AJAX :', error);
+                    });
+            });
+        });
+    });
+</script>

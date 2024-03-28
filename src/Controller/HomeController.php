@@ -28,7 +28,7 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(Request $request, UserInterface $user): Response
     {
-        // Récupérer le campus de l'utilisateur connecté
+        // Je récupère le campus de l'utilisateur connecté
         $selectedCampusNom = $user->getCampus();
 
         $selectedCampusNom = $user ? $user->getCampus() : null;
@@ -41,24 +41,41 @@ class HomeController extends AbstractController
         }
 
         if (!$this->security->isGranted('ROLE_USER')) {
-            // Redirige vers la page de connexion
+            // Je redirige vers la page de connexion
             return new RedirectResponse($this->generateUrl('app_login'));
         }
 
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
-        $sorties = [];
 
         $nomRecherche = $request->query->get('nom'); // Récupérer le nom de recherche depuis la requête
-        $dateDebut = $request->query->get('date_debut'); // Récupérer la date de début depuis la requête
-        $dateFin = $request->query->get('date_fin'); // Récupérer la date de fin depuis la requête
         $estOrganisateur = $request->query->get('organisateur'); // Récupérer la valeur du filtre organisateur
 
         $estTerminees = $request->query->get('terminees'); // Récupérer la valeur du filtre sorties terminées
 
+        $date1 = $request->query->get('date1');
+        $date2 = $request->query->get('date2');
+
+
         if ($selectedCampus) {
             if ($nomRecherche) {
-                // Si un nom de recherche est spécifié, filtrer les sorties par nom et campus
+                if ($date1 && $date2) {
+                // Convertir les chaînes de date en objets DateTime
+                $date1Obj = new \DateTime($date1);
+                $date2Obj = new \DateTime($date2);
+
+                $date2Obj->modify('+1 day');
+
+                // Je récupère les sorties où dateHeureDebut est comprise entre les deux dates
+                $sorties = $this->entityManager->getRepository(Sortie::class)
+                    ->createQueryBuilder('s')
+                    ->where('s.dateHeureDebut BETWEEN :date1 AND :date2')
+                    ->setParameter('date1', $date1Obj)
+                    ->setParameter('date2', $date2Obj)
+                    ->getQuery()
+                    ->getResult();
+            }
+                // Si recherche par nom spécifié, je filtre les sorties par nom et campus
                 $sorties = $this->entityManager->getRepository(Sortie::class)
                     ->createQueryBuilder('s')
                     ->where('s.place = :selectedCampus')
@@ -68,12 +85,12 @@ class HomeController extends AbstractController
                     ->getQuery()
                     ->getResult();
             } else {
-                // Sinon, récupérer toutes les sorties pour le campus sélectionné
+                // Sinon, je récupére toutes les sorties pour le campus sélectionné
                 $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['place' => $selectedCampus]);
             }
         } else {
             if ($nomRecherche) {
-                // Si un nom de recherche est spécifié, filtrer toutes les sorties par nom
+                // Si recherche par nom spécifié, je filtre toutes les sorties par nom
                 $sorties = $this->entityManager->getRepository(Sortie::class)
                     ->createQueryBuilder('s')
                     ->where('s.nom LIKE :nomRecherche')
@@ -81,30 +98,31 @@ class HomeController extends AbstractController
                     ->getQuery()
                     ->getResult();
             } else {
-                // Sinon, récupérer toutes les sorties
+                // Sinon, je récupère toutes les sorties
                 $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
             }
         }
 
         if ($estOrganisateur) {
-            // Récupérer les sorties où l'utilisateur connecté est l'organisateur
+            // Je récupère les sorties où l'utilisateur connecté est l'organisateur
             $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['user' => $user]);
 
         }
 
         if ($estTerminees) {
-            // Récupérer l'objet Etat correspondant à "Terminée"
+            // Je récupère l'objet Etat correspondant à "Terminée"
             $etatTerminee = $this->entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
 
             if ($etatTerminee) {
-                // Si l'objet Etat est trouvé, récupérez les sorties avec cet état
+                // Si l'objet Etat est trouvé, je récupère les sorties avec cet état
                 $sorties = $this->entityManager->getRepository(Sortie::class)->findBy(['etat' => $etatTerminee]);
             } else {
                 // Gérer le cas où l'état "Terminée" n'est pas trouvé
-                // Peut-être envoyer un message d'erreur ou une liste vide de sorties
                 $sorties = [];
             }
         }
+
+
 
 
         return $this->render('home/index.html.twig', [

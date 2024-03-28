@@ -22,7 +22,7 @@
         <tbody>
         {% for sortie in sorties %}
             {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
-                {% if sortie.etat.libelle != 'En création' or sortie.user == app.user %}
+                {% if sortie.etat.libelle != 'Annulée' %}
                     <tr>
                         <td>{{ sortie.nom }}</td>
                         <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
@@ -38,17 +38,18 @@
                             </td>
                         {% elseif sortie.etat.libelle == 'En création' and sortie.user == app.user %}
                             <td>
-                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">show</a>
-                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">modifier</a>
-                                <a href="#">publier</a>
-                                <a href="#">supprimer</a>
+                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">Modifier</a>
+                                <a href="#">Supprimer</a>
                             </td>
                         {% elseif sortie.etat.libelle == 'Ouverte' and sortie.user == app.user %}
                             <td>
-                                <!-- Liens pour les sorties ouvertes auxquelles l'utilisateur peut s'inscrire -->
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">Afficher</a>
+                                <a href="#">Annuler</a>
                             </td>
                         {% else %}
-                            <td></td>
+                            <td>
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">Afficher</a>
+                            </td>
                         {% endif %}
                     </tr>
                 {% endif %}

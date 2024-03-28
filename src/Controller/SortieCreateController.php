@@ -33,7 +33,7 @@ class SortieCreateController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $sortie = new Sortie();
-        // Définir l'utilisateur connecté comme organisateur de la sortie
+        // Défini l'utilisateur connecté comme organisateur de la sortie
         $user = $this->getUser();
         $sortie->setUser($user);
 
