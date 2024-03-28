@@ -9,7 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+
 
 class SortieListController extends AbstractController
 {
@@ -94,4 +95,33 @@ class SortieListController extends AbstractController
             'sortie' => $sortie,
         ]);
     }
+
+    #[Route('/sortie/desistement/{id}', name: 'app_sortie_desistement')]
+    public function seDesister(int $id, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): Response
+    {
+        $sortie = $sortieRepository->find($id);
+        $user = $this->getUser();
+
+        if (!$sortie || !$user) {
+            throw $this->createNotFoundException('Sortie ou Utilisateur introuvable.');
+        }
+
+        if ($sortie->getDateHeureDebut() < new \DateTime()) {
+            $this->addFlash('error', 'La sortie a déjà débuté.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        if (!$sortie->getUsers()->contains($user)) {
+            $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette sortie.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        $sortie->removeUser($user);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous avez été désinscrit de la sortie.');
+        return $this->redirectToRoute('app_sortie_list');
+    }
+
+
 }

@@ -84,4 +84,5 @@ class SortieCreateController extends AbstractController
 
         return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
     }
+
 }
