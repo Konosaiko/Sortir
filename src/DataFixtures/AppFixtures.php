@@ -33,7 +33,7 @@ class AppFixtures extends Fixture implements DependentFixtureInterface
         // Choisir un campus au hasard parmi ceux disponibles
         $randomCampus = $campuses[array_rand($campuses)];
 
-        // Créer l'utilisateur
+        // Créer l'utilisateur admin
         $user = new User();
         $user->setEmail('admin@admin.fr');
         $user->setUsername('admin');
@@ -47,8 +47,23 @@ class AppFixtures extends Fixture implements DependentFixtureInterface
         $user->setIsAttachedTo($randomCampus);
         $user->setRoles(['ROLE_ADMIN']);
 
-        // Persister et flusher l'utilisateur
+        // Créer un deuxième utilisateur test
+        $user2 = new User();
+        $user2->setUsername('user');
+        $user2->setEmail('user.user.fr');
+        $user2->setFirstName('user');
+        $user2->setName('user');
+        $user2->setPhone('0652526132');
+        $user2->setIsAttachedTo($randomCampus);
+        $user2->setRoles(['ROLE_USER']);
+        $user2->setPassword($this->passwordHasher->hashPassword(
+            $user2,
+            '123456'
+        ));
+
+        // Persister et flusher les utilisateurs
         $manager->persist($user);
+        $manager->persist($user2);
         $manager->flush();
     }
 }

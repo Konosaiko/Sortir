@@ -46,7 +46,7 @@ class ProfileController extends AbstractController
         ]);
     }
 
-    #[Route('/profile/{username}', name: 'app_user_profile')]
+    #[Route('/profil/{username}', name: 'app_user_profile')]
     public function userProfile(string $username, EntityManagerInterface $entityManager): Response
     {
         // Récupérer l'utilisateur connecté
