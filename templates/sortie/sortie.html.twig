@@ -5,6 +5,13 @@
 {% block title %}Liste des sorties{% endblock %}
 {% block body %}
     <h1>Liste des sorties</h1>
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
     <table>
         <thead>
         <tr>
@@ -44,9 +51,9 @@
                                 <a href="#">publier</a>
                                 <a href="#">supprimer</a>
                             </td>
-                        {% elseif sortie.etat.libelle == 'Ouverte' and sortie.user == app.user %}
+                        {% elseif sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') and not sortie.users.contains(app.user) %}
                             <td>
-                                <!-- Liens pour les sorties ouvertes auxquelles l'utilisateur peut s'inscrire -->
+                                <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary">S'inscrire</a>
                             </td>
                         {% else %}
                             <td></td>

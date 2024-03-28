@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Sortie;
 use App\Entity\Campus;
+use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +46,52 @@ class SortieListController extends AbstractController
         return $this->render('sortie/sortie.html.twig', [
             'sorties' => $sorties,
             'campuses' => $campuses,
+        ]);
+    }
+
+    #[Route('/inscription/{id}', name: 'app_sortie_inscription')]
+    public function register(int $id, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): Response
+    {
+        $sortie = $sortieRepository->find($id);
+        $user = $this->getUser();
+
+        if (!$sortie) {
+            $this->addFlash('error', 'La sortie demandée n\'existe pas.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour vous inscrire à une sortie.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($sortie->getEtat()->getLibelle() !== 'Ouverte') {
+            $this->addFlash('error', 'Cette sortie n\'est pas ouverte aux inscriptions.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        if ($sortie->getDateLimite() < new \DateTime()) {
+            $this->addFlash('error', 'La date limite d\'inscription est dépassée.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        if ($sortie->getUsers()->contains($user)) {
+            $this->addFlash('error', 'Vous êtes déjà inscrit à cette sortie.');
+            return $this->redirectToRoute('app_sortie_list');
+        }
+
+        $sortie->addUser($user);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Votre inscription à la sortie a été enregistrée.');
+        return $this->redirectToRoute('app_sortie_list');
+    }
+
+    #[Route('/detailsortie/{id}', name: 'app_sortie_create_show', methods: ['GET'])]
+    public function show(Sortie $sortie): Response
+    {
+        return $this->render('sortie_create/show.html.twig', [
+            'sortie' => $sortie,
         ]);
     }
 }
