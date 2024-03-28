@@ -44,7 +44,12 @@
                         {% elseif sortie.etat.libelle == 'Ouverte' and sortie.user == app.user %}
                             <td>
                                 <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">Afficher</a>
-                                <a href="#">Annuler</a>
+                                <a href="#" class="annuler-sortie" data-sortie-id="{{ sortie.id }}">Annuler</a>
+                                <div id="confirmation-message" style="display: none;">
+                                    Êtes-vous sûr ?
+                                    <button id="confirm-annulation">Oui</button>
+                                    <button id="cancel-annulation">Non</button>
+                                </div>
                             </td>
                         {% else %}
                             <td>
@@ -57,4 +62,57 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const annulerLinks = document.querySelectorAll('.annuler-sortie');
+            const confirmationMessage = document.getElementById('confirmation-message');
+
+            annulerLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const sortieId = this.getAttribute('data-sortie-id');
+
+                    // Afficher le message de confirmation
+                    confirmationMessage.style.display = 'block';
+
+                    // Gérer le clic sur le bouton de confirmation
+                    document.getElementById('confirm-annulation').addEventListener('click', function () {
+                        // Effectuer l'annulation de la sortie
+                        annulerSortie(sortieId);
+                    });
+
+                    // Gérer le clic sur le bouton d'annulation de l'annulation ;-)
+                    document.getElementById('cancel-annulation').addEventListener('click', function () {
+                        // Cacher le message de confirmation
+                        confirmationMessage.style.display = 'none';
+                    });
+                });
+            });
+
+            // Fonction pour effectuer l'annulation de la sortie
+            function annulerSortie(sortieId) {
+                fetch('{{ path('app_annuler_sortie', {'id': 'SORTIE_ID'}) }}'.replace('SORTIE_ID', sortieId), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Si la sortie est annulée avec succès, actualiser la page
+                            location.reload();
+                        } else {
+                            console.error('Erreur lors de l\'annulation de la sortie.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de la requête AJAX :', error);
+                    });
+            }
+        });
+    </script>
 {% endblock %}
+

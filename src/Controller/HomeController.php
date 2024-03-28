@@ -7,6 +7,7 @@ use App\Entity\Etat;
 use App\Entity\Sortie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,26 @@ class HomeController extends AbstractController
     {
         $this->entityManager = $entityManager;
         $this->security = $security;
+    }
+
+    #[Route('/annuler-sortie/{id}', name: 'app_annuler_sortie', methods: ['POST'])]
+    public function annulerSortie(Request $request, Sortie $sortie): Response
+    {
+        // Vérifier si la requête est une requête AJAX
+        if (!$request->isXmlHttpRequest()) {
+            // Rediriger vers la page d'accueil ou afficher un message d'erreur
+            return $this->redirectToRoute('app_home');
+        }
+
+        // Récupérer l'état "Annulée"
+        $etatAnnulee = $this->entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Annulée']);
+
+        // Mettre à jour l'état de la sortie
+        $sortie->setEtat($etatAnnulee);
+        $this->entityManager->flush();
+
+        // Retourner une réponse JSON indiquant le succès de l'opération
+        return new JsonResponse(['success' => true]);
     }
 
     #[Route('/', name: 'app_home')]
@@ -121,9 +142,6 @@ class HomeController extends AbstractController
                 $sorties = [];
             }
         }
-
-
-
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
