@@ -3,9 +3,7 @@
 {% block page_title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-    {% include 'partials/navbar.html.twig' %}
     <main>
-
         <section id="filters">
             <form action="{{ path('app_sortie_list') }}" method="GET">
                 <label for="campus">Filtrer par campus :</label>
