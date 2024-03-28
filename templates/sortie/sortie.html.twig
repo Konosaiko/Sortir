@@ -31,7 +31,9 @@
                         <td>{{ sortie.registerLimit }}</td>
                         <td>{{ sortie.etat.libelle }}</td>
                         <td>{{ sortie.place.nom }}</td>
-                        <td>{{ sortie.user.username }}</td>
+                        <td><a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
+                                {{ sortie.user.username }}
+                            </a></td>
                         {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Clôturée' %}
                             <td>
                                 <!-- Liens pour les sorties en cours ou clôturées -->

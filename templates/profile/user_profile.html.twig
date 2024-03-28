@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil de {{ user.username }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h2>Profil de {{ user.username }}</h2>
+        <p>Nom : {{ user.name }}</p>
+        <p>Prénom : {{ user.firstName }}</p>
+        <p>Email : {{ user.email }}</p>
+        <p>Téléphone : {{ user.phone }}</p>
+
+    </div>
+{% endblock %}

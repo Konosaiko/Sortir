@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ProfileController extends AbstractController
 {
-    #[Route('/profile', name: 'app_profile')]
+    #[Route('/profil', name: 'app_profile')]
     public function index(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
     {
         $user = $this->getUser();
@@ -45,5 +45,29 @@ class ProfileController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/profile/{username}', name: 'app_user_profile')]
+    public function userProfile(string $username, EntityManagerInterface $entityManager): Response
+    {
+        // Récupérer l'utilisateur connecté
+        $currentUser = $this->getUser();
+
+        // Si l'utilisateur connecté essaie d'accéder à son propre profil via /profile/{username},
+        // redirigez-le vers /profile
+        if ($currentUser instanceof User && $currentUser->getUsername() === $username) {
+            return $this->redirectToRoute('app_profile');
+        }
+
+        $user = $entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('L\'utilisateur demandé n\'existe pas.');
+        }
+
+        return $this->render('profile/user_profile.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
 
 }
