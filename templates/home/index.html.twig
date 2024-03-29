@@ -1,23 +1,21 @@
+{# templates/sortie/index.html.twig #}
+
 {% extends 'base.html.twig' %}
 
-{% block page_title %}Liste des Sorties{% endblock %}
+{% block title %}Liste des Sorties{% endblock %}
 
 {% block body %}
     <main>
         <section id="filters">
-            <form action="{{ path('app_sortie_list') }}" method="GET">
+            <form action="{{ path('app_home') }}" method="GET">
                 <label for="campus">Filtrer par campus :</label>
                 <select name="campus" id="campus">
                     <option value="">Tous les campus</option>
                     {% for campus in campuses %}
-                        {% if user and user.getCampus() == campus %}
-                            <option value="{{ campus.nom }}" selected>{{ campus.nom }}</option>
-                        {% else %}
-                            <option value="{{ campus.nom }}">{{ campus.nom }}</option>
-                        {% endif %}
+                        <option value="{{ campus.nom }}" {% if selectedCampus and selectedCampus.nom == campus.nom %}selected{% endif %}>{{ campus.nom }}</option>
                     {% endfor %}
                 </select>
-                <input id="recherche" type="text" name="nom" placeholder="Nom de la sortie">
+                <input id="recherche" type="text" name="nom" placeholder="Nom de la sortie" value="{{ app.request.query.get('nom') }}">
                 <input type="date" name="date1" placeholder="Date 1" value="{{ app.request.query.get('date1') }}">
                 <input type="date" name="date2" placeholder="Date 2" value="{{ app.request.query.get('date2') }}">
                 <label for="organisateur">Les sorties dont je suis l'organisateur</label>
@@ -36,14 +34,37 @@
         </section>
 
         <section id="sorties">
-            {% include 'sortie/sortie.html.twig' with {'sorties': sorties} %}
-        </section>
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
 
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+            <table>
+                <thead>
+                <tr>
+                    <th>Nom de la sortie</th>
+                    <th>Date de la sortie</th>
+                    <th>Durée</th>
+                    <th>Clôture</th>
+                    <th>Limite d'inscription</th>
+                    <th>État</th>
+                    <th>Campus</th>
+                    <th>Organisateur</th>
+                    <th>Inscrit</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% include 'sortie/_sortiesTable.html.twig' with {'sorties': sorties} %}
+                </tbody>
+            </table>
+        </section>
     </main>
 
     <footer>
         <a href="{{ path('app_sortie_create_new') }}">Créer une sortie</a>
     </footer>
-
-    <!-- Ajoutez vos scripts JavaScript ici -->
 {% endblock %}
+

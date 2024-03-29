@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Campus;
 use App\Entity\Etat;
 use App\Entity\Sortie;
+use App\Repository\SortieRepository;
+use App\Service\SortieService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,12 +20,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class HomeController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
+    private SortieService $sortieService;
     private Security $security;
 
-    public function __construct(EntityManagerInterface $entityManager, Security $security) // Injection de Security ici
+    public function __construct(EntityManagerInterface $entityManager, Security $security, SortieService $sortieService) // Injection de Security ici
     {
         $this->entityManager = $entityManager;
         $this->security = $security;
+        $this->sortieService = $sortieService;
     }
 
     #[Route('/annuler-sortie/{id}', name: 'app_annuler_sortie', methods: ['POST'])]
@@ -47,11 +51,10 @@ class HomeController extends AbstractController
     }
 
     #[Route('/', name: 'app_home')]
-    public function index(Request $request, UserInterface $user): Response
+    public function index(Request $request, UserInterface $user, SortieService $sortieService): Response
     {
-        // Je récupère le campus de l'utilisateur connecté
         $selectedCampus = null;
-        $selectedCampusNom = $request->query->get('campus');
+        $selectedCampusId = $request->query->get('campus');
         $nomRecherche = $request->query->get('nom');
         $date1 = $request->query->get('date1');
         $date2 = $request->query->get('date2');
@@ -60,17 +63,24 @@ class HomeController extends AbstractController
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        $qb = $this->entityManager->getRepository(Sortie::class)->createQueryBuilder('s');
-
-        if ($selectedCampusNom) {
-            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['nom' => $selectedCampusNom]);
-            $qb->andWhere('s.place = :selectedCampus')
-                ->setParameter('selectedCampus', $selectedCampus);
-        }
+        $criteria = [];
 
         if ($nomRecherche) {
-            $qb->andWhere('s.nom LIKE :nomRecherche')
-                ->setParameter('nomRecherche', '%' . $nomRecherche . '%');
+            $criteria['nom'] = $nomRecherche;
+        }
+
+        if ($selectedCampusId) {
+            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['id' => $selectedCampusId]);
+            $criteria['place'] = $selectedCampus;
+        }
+
+        $qb = $this->entityManager->getRepository(Sortie::class)->createQueryBuilder('s');
+        $qb->andWhere($qb->expr()->like('s.nom', ':nom'))
+            ->setParameter('nom', '%' . $nomRecherche . '%');
+
+        if ($selectedCampus) {
+            $qb->andWhere('s.place = :selectedCampus')
+                ->setParameter('selectedCampus', $selectedCampus);
         }
 
         if ($date1 && $date2) {
@@ -107,8 +117,9 @@ class HomeController extends AbstractController
 
         $sorties = $qb->getQuery()->getResult();
 
-        $date1 = null;
-        $date2 = null;
+        foreach ($sorties as $sortie) {
+            $sortieService->checkAndUpdateEtatSortie($sortie);
+        }
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
@@ -121,4 +132,80 @@ class HomeController extends AbstractController
             'date2' => $date2,
         ]);
     }
+
+    #[Route('/inscription/{id}', name: 'app_sortie_inscription')]
+    public function register(int $id, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): Response
+    {
+        $sortie = $sortieRepository->find($id);
+        $user = $this->getUser();
+
+        if (!$sortie) {
+            $this->addFlash('error', 'La sortie demandée n\'existe pas.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour vous inscrire à une sortie.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if ($sortie->getEtat()->getLibelle() !== 'Ouverte') {
+            $this->addFlash('error', 'Cette sortie n\'est pas ouverte aux inscriptions.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        if ($sortie->getDateLimite() < new \DateTime()) {
+            $this->addFlash('error', 'La date limite d\'inscription est dépassée.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        if ($sortie->getUsers()->contains($user)) {
+            $this->addFlash('error', 'Vous êtes déjà inscrit à cette sortie.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        $sortie->addUser($user);
+        $this->sortieService->checkAndUpdateEtatSortie($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Votre inscription à la sortie a été enregistrée.');
+        return $this->redirectToRoute('app_home');
+    }
+
+    #[Route('/detailsortie/{id}', name: 'app_sortie_create_show', methods: ['GET'])]
+    public function show(Sortie $sortie): Response
+    {
+        return $this->render('sortie_create/show.html.twig', [
+            'sortie' => $sortie,
+        ]);
+    }
+
+    #[Route('/sortie/desistement/{id}', name: 'app_sortie_desistement')]
+    public function seDesister(int $id, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): Response
+    {
+        $sortie = $sortieRepository->find($id);
+        $user = $this->getUser();
+
+        if (!$sortie || !$user) {
+            throw $this->createNotFoundException('Sortie ou Utilisateur introuvable.');
+        }
+
+        if ($sortie->getDateHeureDebut() < new \DateTime()) {
+            $this->addFlash('error', 'La sortie a déjà débuté.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        if (!$sortie->getUsers()->contains($user)) {
+            $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette sortie.');
+            return $this->redirectToRoute('app_home');
+        }
+
+        $sortie->removeUser($user);
+        $this->sortieService->checkAndUpdateEtatSortie($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous avez été désinscrit de la sortie.');
+        return $this->redirectToRoute('app_home');
+    }
+
 }

@@ -17,7 +17,7 @@ class SortieCreateController extends AbstractController
     #[Route('/', name: 'app_sortie_create_index', methods: ['GET'])]
     public function index(SortieRepository $sortieRepository): Response
     {
-        return $this->render('sortie_create/index.html.twig', [
+        return $this->render('home/index.html.twig', [
             'sorties' => $sortieRepository->findAll(),
         ]);
     }
@@ -45,7 +45,7 @@ class SortieCreateController extends AbstractController
             $entityManager->persist($sortie);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/new.html.twig', [
