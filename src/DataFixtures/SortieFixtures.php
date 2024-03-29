@@ -42,7 +42,8 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
             $sortie->setPlace($campus);
             $sortie->setNom($faker->sentence($nbWords = 6, $variableNbWords = true));
             $sortie->setDateHeureDebut($faker->dateTimeBetween('+2 days', '+1 week')); // Entre 2 jours et 1 semaine à partir de maintenant
-            $sortie->setDuration($faker->numberBetween(1, 24) . ' heures');
+            $durationInMinutes = $faker->numberBetween(1, 1440); // valeur en minutes
+            $sortie->setDuration($durationInMinutes); // $durationInMinutes "minutes"
             $sortie->setDateLimite($faker->dateTimeBetween('-1 week', '+1 day')); // Entre 1 semaine avant et 1 jour après maintenant
             $sortie->setRegisterLimit($faker->numberBetween(1, 100)); // Nombre d'inscriptions limité entre 1 et 100
             $sortie->setInfos($faker->paragraph($nbSentences = 3, $variableNbSentences = true));
