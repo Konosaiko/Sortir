@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Sortie;
+use App\Entity\Etat;
 use App\Form\SortieType;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +18,7 @@ class SortieCreateController extends AbstractController
     #[Route('/', name: 'app_sortie_create_index', methods: ['GET'])]
     public function index(SortieRepository $sortieRepository): Response
     {
-        return $this->render('home/index.html.twig', [
+        return $this->render('sortie_create/index.html.twig', [
             'sorties' => $sortieRepository->findAll(),
         ]);
     }
@@ -41,6 +42,17 @@ class SortieCreateController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $clickedButton = $form->getClickedButton();
+            if ($clickedButton && 'publier' === $clickedButton->getName()) {
+                // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
+                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+                $sortie->setEtat($etat);
+            } else {
+                // Définir l'état de la sortie sur "En création" par défaut
+                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
+                $sortie->setEtat($etat);
+            }
+
             // Traitement du formulaire et enregistrement de la sortie
             $entityManager->persist($sortie);
             $entityManager->flush();
@@ -55,7 +67,6 @@ class SortieCreateController extends AbstractController
     }
 
 
-
     #[Route('/{id}/edit', name: 'app_sortie_create_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Sortie $sortie, EntityManagerInterface $entityManager): Response
     {
@@ -65,7 +76,7 @@ class SortieCreateController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/edit.html.twig', [
@@ -82,7 +93,7 @@ class SortieCreateController extends AbstractController
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_sortie_list', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 
 }

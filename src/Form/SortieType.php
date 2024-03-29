@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Campus;
-use App\Entity\Etat;
 use App\Entity\Lieu;
 use App\Entity\Sortie;
 use App\Entity\User;
@@ -11,6 +10,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class SortieType extends AbstractType
 {
@@ -23,27 +23,22 @@ class SortieType extends AbstractType
                 'widget' => 'single_text',
             ])
             ->add('duration', null, [
-        'label' => "Durée : "
-    ])
+                'label' => "Durée : "
+            ])
             ->add('dateLimite', null, [
                 'widget' => 'single_text',
             ])
             ->add('registerLimit', null, [
                 'label' => "Nombre d'inscriptions maximum : "
-    ])
+            ])
             ->add('infos', null, [
-        'label' => "Description : "
-    ])
+                'label' => "Description : "
+            ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'username',
                 'label' => 'Organisateur : ',
                 'disabled' => true, // Désactivez le champ pour le cacher dans le formulaire
-            ])
-            ->add('etat', EntityType::class, [
-                'class' => Etat::class,
-                'choice_label' => 'libelle',
-                'label' => 'Etat de la sortie : '
             ])
             ->add('place', EntityType::class, [
                 'class' => Campus::class,
@@ -55,7 +50,15 @@ class SortieType extends AbstractType
                 'choice_label' => 'nom',
                 'label' => 'Adresse : '
             ])
-        ;
+
+            ->add('enregistrer', SubmitType::class, [
+                'label' => 'Enregistrer',
+                'attr' => ['class' => 'btn btn-primary'],
+            ])
+            ->add('publier', SubmitType::class, [
+                'label' => 'Publier',
+                'attr' => ['class' => 'btn btn-success'],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

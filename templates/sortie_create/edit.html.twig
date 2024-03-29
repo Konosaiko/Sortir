@@ -7,7 +7,7 @@
 
     {{ include('sortie_create/_form.html.twig', {'button_label': 'Mise à jour'}) }}
 
-    <a href="{{ path('app_sortie_list') }}">Retour à l'accueil</a>
+    <a href="{{ path('app_home') }}" class="btn btn-primary">Retour à l'accueil</a>
 
     {{ include('sortie_create/_delete_form.html.twig') }}
 {% endblock %}

@@ -42,20 +42,6 @@
                 <div class="alert alert-danger">{{ message }}</div>
             {% endfor %}
             <table>
-                <thead>
-                <tr>
-                    <th>Nom de la sortie</th>
-                    <th>Date de la sortie</th>
-                    <th>Durée</th>
-                    <th>Clôture</th>
-                    <th>Limite d'inscription</th>
-                    <th>État</th>
-                    <th>Campus</th>
-                    <th>Organisateur</th>
-                    <th>Inscrit</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
                 <tbody>
                 {% include 'sortie/_sortiesTable.html.twig' with {'sorties': sorties} %}
                 </tbody>
@@ -64,7 +50,7 @@
     </main>
 
     <footer>
-        <a href="{{ path('app_sortie_create_new') }}">Créer une sortie</a>
+        <a href="{{ path('app_sortie_create_new') }}" class="btn btn-primary">Créer une sortie</a>
     </footer>
 {% endblock %}
 

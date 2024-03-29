@@ -1,4 +1,3 @@
-{% block title %}Liste des sorties{% endblock %}
 {% block body %}
     <h1>Liste des sorties</h1>
     {% for message in app.flashes('success') %}
@@ -57,7 +56,6 @@
                                 <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Voulez-vous vous inscrire à cette sortie ?')">S'inscrire</a>
                             {% endif %}
                         </td>
-
                     </tr>
                 {% endif %}
             {% endif %}

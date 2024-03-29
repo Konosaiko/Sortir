@@ -51,10 +51,11 @@ class HomeController extends AbstractController
     }
 
     #[Route('/', name: 'app_home')]
-    public function index(Request $request, UserInterface $user, SortieService $sortieService): Response
+    public function index(Request $request, UserInterface $user): Response
     {
+        // Je récupère le campus de l'utilisateur connecté
         $selectedCampus = null;
-        $selectedCampusId = $request->query->get('campus');
+        $selectedCampusNom = $request->query->get('campus');
         $nomRecherche = $request->query->get('nom');
         $date1 = $request->query->get('date1');
         $date2 = $request->query->get('date2');
@@ -63,24 +64,17 @@ class HomeController extends AbstractController
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        $criteria = [];
-
-        if ($nomRecherche) {
-            $criteria['nom'] = $nomRecherche;
-        }
-
-        if ($selectedCampusId) {
-            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['id' => $selectedCampusId]);
-            $criteria['place'] = $selectedCampus;
-        }
-
         $qb = $this->entityManager->getRepository(Sortie::class)->createQueryBuilder('s');
-        $qb->andWhere($qb->expr()->like('s.nom', ':nom'))
-            ->setParameter('nom', '%' . $nomRecherche . '%');
 
-        if ($selectedCampus) {
+        if ($selectedCampusNom) {
+            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['nom' => $selectedCampusNom]);
             $qb->andWhere('s.place = :selectedCampus')
                 ->setParameter('selectedCampus', $selectedCampus);
+        }
+
+        if ($nomRecherche) {
+            $qb->andWhere('s.nom LIKE :nomRecherche')
+                ->setParameter('nomRecherche', '%' . $nomRecherche . '%');
         }
 
         if ($date1 && $date2) {
@@ -117,9 +111,8 @@ class HomeController extends AbstractController
 
         $sorties = $qb->getQuery()->getResult();
 
-        foreach ($sorties as $sortie) {
-            $sortieService->checkAndUpdateEtatSortie($sortie);
-        }
+        $date1 = null;
+        $date2 = null;
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
