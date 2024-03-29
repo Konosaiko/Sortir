@@ -11,6 +11,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 class SortieType extends AbstractType
 {
@@ -19,21 +20,29 @@ class SortieType extends AbstractType
     {
         $builder
             ->add('nom')
-            ->add('dateHeureDebut', null, [
+            ->add('dateHeureDebut', DateTimeType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
+                'attr' => [
+                    'min' => (new \DateTime())->format('Y-m-d\TH:i') // Limite la date au minimum à la date et heure actuelles
+                ]
             ])
             ->add('duration', null, [
-                'label' => "Durée : "
-            ])
-            ->add('dateLimite', null, [
+        'label' => "Durée : "
+    ])
+            ->add('dateLimite', DateTimeType::class, [
                 'widget' => 'single_text',
+                'html5' => true,
+                'attr' => [
+                    'min' => (new \DateTime())->format('Y-m-d\TH:i') // Limite la date au minimum à la date et heure actuelles
+                ]
             ])
             ->add('registerLimit', null, [
                 'label' => "Nombre d'inscriptions maximum : "
-            ])
+    ])
             ->add('infos', null, [
-                'label' => "Description : "
-            ])
+        'label' => "Description : "
+    ])
             ->add('user', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'username',
