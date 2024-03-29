@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Sortie;
+use App\Entity\Etat;
 use App\Form\SortieType;
 use App\Repository\SortieRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +42,17 @@ class SortieCreateController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $clickedButton = $form->getClickedButton();
+            if ($clickedButton && 'publier' === $clickedButton->getName()) {
+                // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
+                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+                $sortie->setEtat($etat);
+            } else {
+                // Définir l'état de la sortie sur "En création" par défaut
+                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
+                $sortie->setEtat($etat);
+            }
+
             // Traitement du formulaire et enregistrement de la sortie
             $entityManager->persist($sortie);
             $entityManager->flush();
@@ -53,7 +65,6 @@ class SortieCreateController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
 
     #[Route('/{id}/edit', name: 'app_sortie_create_edit', methods: ['GET', 'POST'])]
