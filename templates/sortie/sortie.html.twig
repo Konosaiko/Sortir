@@ -1,7 +1,3 @@
-{# templates/sortie/sortie.html.twig #}
-
-
-
 {% block title %}Liste des sorties{% endblock %}
 {% block body %}
     <h1>Liste des sorties</h1>
@@ -23,16 +19,18 @@
             <th>État</th>
             <th>Campus</th>
             <th>Organisateur</th>
+            <th>Inscrit</th>
+            <th>Action</th>
         </tr>
         </thead>
         <tbody>
         {% for sortie in sorties %}
             {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
-                {% if sortie.etat.libelle != 'En création' or sortie.user == app.user %}
+                {% if (sortie.etat.libelle != 'En création' or sortie.user == app.user) and sortie.etat.libelle != 'Annulée' %}
                     <tr>
                         <td>{{ sortie.nom }}</td>
                         <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
-                        <td>{{ sortie.duration }} minutes</td>
+                        <td>{{ sortie.duration }}</td>
                         <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
                         <td>{{ sortie.registerLimit }}</td>
                         <td>{{ sortie.etat.libelle }}</td>
@@ -40,32 +38,39 @@
                         <td><a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
                                 {{ sortie.user.username }}
                             </a></td>
-                        {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Clôturée' %}
-                            <td>
-                                <!-- Liens pour les sorties en cours ou clôturées -->
-                            </td>
-                        {% elseif sortie.etat.libelle == 'En création' and sortie.user == app.user %}
-                            <td>
-                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}">show</a>
-                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}">modifier</a>
+                        <td>
+                            {% if sortie.users.contains(app.user) %}
+                                <i class="fas fa-times"></i> <!-- Icône "X" si l'utilisateur est inscrit -->
+                            {% else %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if sortie.etat.libelle == 'En cours' or sortie.etat.libelle == 'Clôturée' %}
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
+                            {% elseif sortie.etat.libelle == 'En création' and sortie.user == app.user %}
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
+                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}" class="btn btn-primary">Modifier</a>
                                 <a href="#">publier</a>
                                 <a href="#">supprimer</a>
-                            </td>
-                        {% elseif sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') and not sortie.users.contains(app.user) %}
-                            <td>
-                                <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Êtes-vous sûr de vouloir vous inscrire à cette sortie ?');">S'inscrire</a>
-                            </td>
-                        {% elseif sortie.users.contains(app.user) and sortie.dateHeureDebut > date('now') %}
-                            <td>
-                                <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}" class="btn btn-warning" onclick="return confirm('Êtes-vous sûr de vouloir vous désister de cette sortie ?');">Se désister</a>
-                            </td>
-                        {% else %}
-                            <td></td>
-                        {% endif %}
+                            {% elseif sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') and sortie.user == app.user %}
+                                {% if sortie.users.contains(app.user) %}
+                                    <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}" class="btn btn-primary se-desister" onclick="return confirm('Êtes-vous sûr de vouloir vous désister de cette sortie ?')">Se désister</a>
+                                {% else %}
+                                    <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Voulez-vous vous inscrire à cette sortie ?')">S'inscrire</a>
+                                {% endif %}
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
+                                <a href="#" class="btn btn-primary annuler-sortie" data-sortie-id="{{ sortie.id }}">Annuler</a>
+                            {% elseif sortie.etat.libelle == 'Ouverte' and sortie.user != app.user %}
+                                <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
+                            {% else %}
+                                <!-- Laissez cette cellule vide pour d'autres cas -->
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endif %}
             {% endif %}
         {% endfor %}
         </tbody>
     </table>
+
 {% endblock %}

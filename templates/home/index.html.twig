@@ -18,7 +18,8 @@
                     {% endfor %}
                 </select>
                 <input id="recherche" type="text" name="nom" placeholder="Nom de la sortie">
-                <p>Entre <input type="date" name="date" placeholder="Date 1"> et <input type="date" name="date" placeholder="Date 2"></p>
+                <input type="date" name="date1" placeholder="Date 1" value="{{ app.request.query.get('date1') }}">
+                <input type="date" name="date2" placeholder="Date 2" value="{{ app.request.query.get('date2') }}">
                 <label for="organisateur">Les sorties dont je suis l'organisateur</label>
                 <input type="checkbox" name="organisateur" id="organisateur">
 
