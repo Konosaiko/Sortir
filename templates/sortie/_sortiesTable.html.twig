@@ -1,3 +1,4 @@
+
 {% block body %}
     <h1>Liste des sorties</h1>
     {% for message in app.flashes('success') %}
@@ -23,6 +24,8 @@
         </tr>
         </thead>
         <tbody>
+
+
         {% for sortie in sorties %}
             {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
                 {% if (sortie.etat.libelle != 'En création' or sortie.user == app.user) and sortie.etat.libelle != 'Annulée' %}

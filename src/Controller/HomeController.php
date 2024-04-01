@@ -53,78 +53,42 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(Request $request, UserInterface $user): Response
     {
-        // Je récupère le campus de l'utilisateur connecté
-        $selectedCampus = null;
-        $selectedCampusNom = $request->query->get('campus');
-        $nomRecherche = $request->query->get('nom');
-        $date1 = $request->query->get('date1');
-        $date2 = $request->query->get('date2');
-        $estOrganisateur = $request->query->get('organisateur');
-        $estTerminees = $request->query->get('terminees');
+        // Préparez les options de filtrage
+        $filterOptions = [
+            'campus' => $request->query->get('campus'),
+            'nom' => $request->query->get('nom'),
+            'date1' => $request->query->get('date1'),
+            'date2' => $request->query->get('date2'),
+            'organisateur' => $request->query->get('organisateur') ? $user : null,
+            'terminees' => $request->query->get('terminees'),
+        ];
+
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        $qb = $this->entityManager->getRepository(Sortie::class)->createQueryBuilder('s');
-
-        if ($selectedCampusNom) {
-            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['nom' => $selectedCampusNom]);
-            $qb->andWhere('s.place = :selectedCampus')
-                ->setParameter('selectedCampus', $selectedCampus);
+        $selectedCampus = null;
+        if (!empty($filterOptions['campus'])) {
+            $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['nom' => $filterOptions['campus']]);
         }
 
-        if ($nomRecherche) {
-            $qb->andWhere('s.nom LIKE :nomRecherche')
-                ->setParameter('nomRecherche', '%' . $nomRecherche . '%');
-        }
+        // Mise à jour des états des sorties avant de récupérer la liste
+        $numUpdated = $this->sortieService->updateSortieEtats();
 
-        if ($date1 && $date2) {
-            // Convertir les chaînes de date en objets DateTime
-            $date1Obj = new \DateTime($date1);
-            $date2Obj = new \DateTime($date2);
-
-            // Ajouter un jour à la date de fin pour inclure les sorties du jour spécifié
-            $date2Obj->modify('+1 day');
-
-            $qb->andWhere('s.dateHeureDebut BETWEEN :date1 AND :date2')
-                ->setParameter('date1', $date1Obj)
-                ->setParameter('date2', $date2Obj);
-        }
-
-        if ($estOrganisateur) {
-            $qb->andWhere('s.user = :user')
-                ->setParameter('user', $user);
-        }
-
-        if ($estTerminees) {
-            // Je récupère l'objet Etat correspondant à "Terminée"
-            $etatTerminee = $this->entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
-
-            if ($etatTerminee) {
-                // Si l'objet Etat est trouvé, je récupère les sorties avec cet état
-                $qb->andWhere('s.etat = :etatTerminee')
-                    ->setParameter('etatTerminee', $etatTerminee);
-            } else {
-                // Gérer le cas où l'état "Terminée" n'est pas trouvé
-                $sorties = [];
-            }
-        }
-
-        $sorties = $qb->getQuery()->getResult();
-
-        $date1 = null;
-        $date2 = null;
+        // Récupérez toutes les sorties avec les options de filtrage
+        $sorties = $this->entityManager->getRepository(Sortie::class)->findAllSorties($filterOptions);
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
             'campuses' => $campuses,
             'isAdmin' => $isAdmin,
             'sorties' => $sorties,
-            'selectedCampus' => $selectedCampus, // Transmettre le campus sélectionné au template
-            'user' => $user, // Transmettre l'utilisateur connecté au template
-            'date1' => $date1,
-            'date2' => $date2,
+            'selectedCampus' => $selectedCampus,
+            'user' => $user,
+            'date1' => $filterOptions['date1'],
+            'date2' => $filterOptions['date2'],
         ]);
     }
+
 
     #[Route('/inscription/{id}', name: 'app_sortie_inscription')]
     public function register(int $id, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): Response
@@ -158,7 +122,6 @@ class HomeController extends AbstractController
         }
 
         $sortie->addUser($user);
-        $this->sortieService->checkAndUpdateEtatSortie($sortie);
         $entityManager->flush();
 
         $this->addFlash('success', 'Votre inscription à la sortie a été enregistrée.');
@@ -194,7 +157,6 @@ class HomeController extends AbstractController
         }
 
         $sortie->removeUser($user);
-        $this->sortieService->checkAndUpdateEtatSortie($sortie);
         $entityManager->flush();
 
         $this->addFlash('success', 'Vous avez été désinscrit de la sortie.');
