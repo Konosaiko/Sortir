@@ -29,6 +29,8 @@ class SortieService
         // Retrieve the Etat 'Ouverte'
         $etatOuverte = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
 
+        $etatEnCreation = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
+
         // Update sorties to 'Clôturée' if conditions are met
         $clotureeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
@@ -46,11 +48,12 @@ class SortieService
         $ouverteQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
         SET s.etat = :etatOuverte 
-        WHERE (s.registerLimit > SIZE(s.users) AND s.dateLimite > :now)
-        AND s.etat != :etatOuverte'
+        WHERE ((s.registerLimit > SIZE(s.users) AND s.dateLimite > :now) AND s.etat != :etatOuverte) 
+        AND s.etat != :etatEnCreation'
         )
             ->setParameter('etatOuverte', $etatOuverte)
-            ->setParameter('now', $now);
+            ->setParameter('now', $now)
+            ->setParameter('etatEnCreation', $etatEnCreation);
 
         // Execute update query for 'Ouverte' sorties
         $numUpdatedOuverte = $ouverteQuery->execute();

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Etat;
 use App\Entity\Sortie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -60,7 +61,7 @@ class SortieRepository extends ServiceEntityRepository
 
         // Filtrage par état 'Terminée'
         if (!empty($filterOptions['terminees'])) {
-            $etatTerminee = $this->_em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+            $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
             $qb->andWhere('s.etat = :etatTerminee')
                 ->setParameter('etatTerminee', $etatTerminee);
         }
