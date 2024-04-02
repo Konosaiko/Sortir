@@ -59,6 +59,7 @@ class SortieRepository extends ServiceEntityRepository
                 ->setParameter('organisateur', $filterOptions['organisateur']);
         }
 
+
         // Filtrage par état 'Terminée'
         if (!empty($filterOptions['terminees'])) {
             $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
