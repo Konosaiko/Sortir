@@ -54,7 +54,6 @@ class HomeController extends AbstractController
     public function index(Request $request, UserInterface $user): Response
     {
 
-        $user = $this->getUser();
         // Préparez les options de filtrage
         $filterOptions = [
             'campus' => $request->query->get('campus'),
@@ -80,6 +79,12 @@ class HomeController extends AbstractController
 
         // Récupérez toutes les sorties avec les options de filtrage
         $sorties = $this->entityManager->getRepository(Sortie::class)->findAllSorties($filterOptions, $user);
+
+        if (empty($filterOptions['terminees'])) {
+            $sorties = array_filter($sorties, function($sortie) {
+                return $sortie->getEtat()->getLibelle() !== 'Terminée';
+            });
+        }
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',

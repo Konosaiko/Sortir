@@ -72,14 +72,9 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         // Filtrage par utilisateur non inscrit
-        if (!empty($filterOptions['non_inscrit']) && $user !== null) {
-            $qb->andWhere(':user NOT MEMBER OF s.users');
-                if (empty($filterOptions['terminees'])) {
-                    $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
-                    $qb->andWhere('s.etat != :etatTerminee')
-                        ->setParameter('etatTerminee', $etatTerminee);
-                }
-        $qb->setParameter('user', $user);
+        if (!empty($filterOptions['non_inscrit'])) {
+            $qb->andWhere(':user NOT MEMBER OF s.users')
+                ->setParameter('user', $user);
         }
 
         return $qb->getQuery()->getResult();
