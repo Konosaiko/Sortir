@@ -75,12 +75,6 @@ class SortieRepository extends ServiceEntityRepository
     }
 
 
-
-
-
-
-
-
     //    /**
     //     * @return Sortie[] Returns an array of Sortie objects
     //     */
