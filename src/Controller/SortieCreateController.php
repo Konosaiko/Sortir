@@ -39,6 +39,10 @@ class SortieCreateController extends AbstractController
         $user = $this->getUser();
         $sortie->setUser($user);
 
+        $campus = $user->getCampus();
+        // Définir le campus de l'utilisateur comme campus de la sortie
+        $sortie->setPlace($campus);
+
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 

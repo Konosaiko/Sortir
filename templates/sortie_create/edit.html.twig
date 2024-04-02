@@ -5,7 +5,46 @@
 {% block body %}
     <h1>Modifier les informations de : {{ sortie.nom }}</h1>
 
-    {{ include('sortie_create/_form.html.twig') }}
+    <form method="post">
+        {{ form_start(form) }}
+        <div>
+            {{ form_label(form.nom) }}
+            {{ form_widget(form.nom) }}
+            {{ form_errors(form.nom) }}
+        </div>
+        <div>
+            {{ form_label(form.dateHeureDebut) }}
+            {{ form_widget(form.dateHeureDebut) }}
+            {{ form_errors(form.dateHeureDebut) }}
+        </div>
+        <div>
+            {{ form_label(form.duration) }}
+            {{ form_widget(form.duration) }}
+            {{ form_errors(form.duration) }}
+        </div>
+        <div>
+            {{ form_label(form.dateLimite) }}
+            {{ form_widget(form.dateLimite) }}
+            {{ form_errors(form.dateLimite) }}
+        </div>
+        <div>
+            {{ form_label(form.registerLimit) }}
+            {{ form_widget(form.registerLimit) }}
+            {{ form_errors(form.registerLimit) }}
+        </div>
+        <div>
+            {{ form_label(form.infos) }}
+            {{ form_widget(form.infos) }}
+            {{ form_errors(form.infos) }}
+        </div>
+        <p>Campus : {{ app.user.campus.nom }}</p>
+        <div>
+            {{ form_label(form.address) }}
+            {{ form_widget(form.address) }}
+            {{ form_errors(form.address) }}
+        </div>
+        {{ form_end(form) }}
+    </form>
 
     <a href="{{ path('app_home') }}" class="btn btn-primary">Retour à l'accueil</a>
 
