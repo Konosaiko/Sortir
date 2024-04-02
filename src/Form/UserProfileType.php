@@ -23,16 +23,21 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('profilePicture', FileType::class, [
-                'label' => 'Photo de profil',
-                'mapped' => false, // Ne pas mapper ce champ à une propriété de l'entité
-                'required' => false, // La photo de profil est facultative
+            ->add('username', TextType::class, [
+                'label' => 'Pseudo'
             ])
-            ->add('firstName', TextType::class)
-            ->add('name', TextType::class)
-            ->add('username', TextType::class)
-            ->add('email', EmailType::class)
-            ->add('phone', TelType::class)
+            ->add('firstName', TextType::class, [
+        'label' => 'Prénom'
+        ])
+            ->add('name', TextType::class, [
+                'label' => 'Nom'
+            ])
+            ->add('phone', TelType::class, [
+                'label' => 'Téléphone'
+            ])
+            ->add('email', EmailType::class, [
+                'label' => 'Email'
+            ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
@@ -49,10 +54,11 @@ class UserProfileType extends AbstractType
                     ]),
                 ],
             ])
-
-
-
-
+            ->add('profilePicture', FileType::class, [
+                'label' => 'Photo de profil',
+                'mapped' => false, // Ne pas mapper ce champ à une propriété de l'entité
+                'required' => false, // La photo de profil est facultative
+            ])
         ;
     }
 
