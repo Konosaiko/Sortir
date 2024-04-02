@@ -53,8 +53,11 @@
                             <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
                             {% if sortie.etat.libelle == 'En création' and sortie.user == app.user %}
                                 <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}" class="btn btn-primary">Modifier</a>
-                                <a href="#">publier</a>
-                                <a href="#">supprimer</a>
+                                <a href="{{ path('app_sortie_create_publish', {'id': sortie.id}) }}" class="btn btn-primary">Publier</a>
+                                <form method="post" action="{{ path('app_sortie_create_delete', {'id': sortie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ sortie.id) }}">
+                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                </form>
                             {% elseif not sortie.users.contains(app.user) and sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') %}
                                 <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Voulez-vous vous inscrire à cette sortie ?')">S'inscrire</a>
                             {% endif %}

@@ -107,4 +107,16 @@ class SortieCreateController extends AbstractController
         return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/{id}/publish', name: 'app_sortie_create_publish', methods: ['GET'])]
+    public function publish(Sortie $sortie, EntityManagerInterface $entityManager): Response
+    {
+        $etatOuverte = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+        $sortie->setEtat($etatOuverte);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La sortie a été publiée avec succès.');
+
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
+    }
+
 }
