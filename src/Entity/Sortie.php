@@ -164,12 +164,12 @@ class Sortie
         return $this;
     }
 
-    public function getDuration(): ?string
+    public function getDuration(): ?int
     {
         return $this->duration;
     }
 
-    public function setDuration(string $duration): static
+    public function setDuration(int $duration): static
     {
         $this->duration = $duration;
 

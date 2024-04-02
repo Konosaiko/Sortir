@@ -31,15 +31,19 @@ class SortieService
 
         $etatEnCreation = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
 
+        $etatTerminee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+
         // Update sorties to 'Clôturée' if conditions are met
         $clotureeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
-        SET s.etat = :etatCloturee 
-        WHERE (s.registerLimit <= SIZE(s.users) OR s.dateLimite <= :now)
-        AND s.etat != :etatCloturee'
+            SET s.etat = :etatCloturee 
+            WHERE (s.registerLimit <= SIZE(s.users) OR s.dateLimite <= :now)
+            AND s.etat != :etatCloturee
+            AND s.etat != :etatTerminee' // Ajout de cette condition
         )
             ->setParameter('etatCloturee', $etatCloturee)
-            ->setParameter('now', $now);
+            ->setParameter('now', $now)
+            ->setParameter('etatTerminee', $etatTerminee); // Ajout du paramètre etatTerminee
 
         // Execute update query for 'Clôturée' sorties
         $numUpdatedCloturee = $clotureeQuery->execute();
@@ -58,8 +62,20 @@ class SortieService
         // Execute update query for 'Ouverte' sorties
         $numUpdatedOuverte = $ouverteQuery->execute();
 
+        $termineeQuery = $em->createQuery(
+            'UPDATE App\Entity\Sortie s 
+    SET s.etat = :etatTerminee 
+    WHERE (DATE_ADD(s.dateHeureDebut, s.duration, \'MINUTE\')) < :now
+    AND s.etat = :etatCloturee'
+        )
+            ->setParameter('etatTerminee', $etatTerminee)
+            ->setParameter('now', $now)
+            ->setParameter('etatCloturee', $etatCloturee);
+
+        $numUpdatedTerminee = $termineeQuery->execute();
+
         // Return the total number of updated sorties
-        return $numUpdatedCloturee + $numUpdatedOuverte;
+        return $numUpdatedCloturee + $numUpdatedOuverte + $numUpdatedTerminee;
     }
 
 }

@@ -28,7 +28,7 @@ class SortieType extends AbstractType
                 ]
             ])
             ->add('duration', null, [
-        'label' => "Durée : "
+        'label' => "Durée en minutes : "
     ])
             ->add('dateLimite', DateTimeType::class, [
                 'widget' => 'single_text',

@@ -64,6 +64,11 @@ class SortieRepository extends ServiceEntityRepository
             $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
             $qb->andWhere('s.etat = :etatTerminee')
                 ->setParameter('etatTerminee', $etatTerminee);
+        } else {
+            // Si le filtre n'est pas coché, excluez les sorties à l'état "Terminée"
+            $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+            $qb->andWhere('s.etat != :etatTerminee')
+                ->setParameter('etatTerminee', $etatTerminee);
         }
 
         return $qb->getQuery()->getResult();
