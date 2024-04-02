@@ -1,5 +1,5 @@
 {% block body %}
-    <h1>Liste des sorties</h1>
+
     {% for message in app.flashes('success') %}
         <div class="alert alert-success">{{ message }}</div>
     {% endfor %}
@@ -9,12 +9,11 @@
     {% endfor %}
 
     <div class="table-responsive">
-    <table class="table table-striped table-hover custom-table">
+    <table class="table table-striped table-hover">
         <thead class="thead-dark">
         <tr>
             <th>Nom de la sortie</th>
             <th>Date de la sortie</th>
-            <th>Durée en minutes</th>
             <th>Clôture</th>
             <th>Limite d'inscription</th>
             <th>État</th>
@@ -32,7 +31,6 @@
                 <tr>
                     <td>{{ sortie.nom }}</td>
                     <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
-                    <td>{{ sortie.duration }}</td>
                     <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
                     <td>{{ sortie.registerLimit }}</td>
                     <td>{{ sortie.etat.libelle }}</td>
@@ -94,4 +92,6 @@
         </tbody>
     </table>
     </div>
+
+
 {% endblock %}

@@ -7,31 +7,56 @@
 {% block body %}
     <main>
         <section id="filters">
-            <form action="{{ path('app_home') }}" method="GET">
-                <label for="campus">Filtrer par campus :</label>
-                <select name="campus" id="campus">
-                    <option value="">Tous les campus</option>
-                    {% for campus in campuses %}
-                        <option value="{{ campus.nom }}" {% if selectedCampus and selectedCampus.nom == campus.nom %}selected{% endif %}>{{ campus.nom }}</option>
-                    {% endfor %}
-                </select>
-                <input id="recherche" type="text" name="nom" placeholder="Nom de la sortie" value="{{ app.request.query.get('nom') }}">
-                <input type="date" name="date1" placeholder="Date 1" value="{{ app.request.query.get('date1') }}">
-                <input type="date" name="date2" placeholder="Date 2" value="{{ app.request.query.get('date2') }}">
-                <label for="organisateur">Les sorties dont je suis l'organisateur</label>
-                <input type="checkbox" name="organisateur" id="organisateur">
+            <form action="{{ path('app_home') }}" method="GET" class="container-fluid">
+                <div class="row">
+                    <!-- Colonne pour le choix du campus et les recherches par nom et date -->
+                    <h3>Filtrer les sorties</h3>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <select name="campus" id="campus" class="form-control">
+                                <option value="">Tous les campus</option>
+                                {% for campus in campuses %}
+                                    <option value="{{ campus.nom }}" {% if selectedCampus and selectedCampus.nom == campus.nom %}selected{% endif %}>
+                                        {{ campus.nom }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input id="recherche" type="text" name="nom" class="form-control" placeholder="Nom de la sortie" value="{{ app.request.query.get('nom') }}">
+                        </div>
+                        <div class="form-group">
+                            <input type="date" name="date1" class="form-control" placeholder="Date 1" value="{{ app.request.query.get('date1') }}">
+                        </div>
+                        <div class="form-group">
+                            <input type="date" name="date2" class="form-control" placeholder="Date 2" value="{{ app.request.query.get('date2') }}">
+                        </div>
+                    </div>
+                    <!-- Colonne pour les checkboxes -->
+                    <div class="col-md-8">
+                        <div class="form-check">
+                            <input type="checkbox" name="organisateur" id="organisateur" class="form-check-input">
+                            <label for="organisateur" class="form-check-label">Les sorties dont je suis l'organisateur</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="inscrit" id="inscrit" class="form-check-input">
+                            <label for="inscrit" class="form-check-label">Auxquelles je suis inscrit</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="non_inscrit" id="non_inscrit" class="form-check-input">
+                            <label for="non_inscrit" class="form-check-label">Auxquelles je ne suis pas inscrit</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="terminees" id="terminees" class="form-check-input">
+                            <label for="terminees" class="form-check-label">Sorties terminées</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Rechercher</button>
+                    </div>
+                </div>
 
-                <label for="inscrit">Auxquelles je suis inscrit</label>
-                <input type="checkbox" name="inscrit" id="inscrit">
-
-                <label for="non_inscrit">Auxquelles je ne suis pas inscrit</label>
-                <input type="checkbox" name="non_inscrit" id="non_inscrit">
-
-                <label for="terminees">Sorties terminées</label>
-                <input type="checkbox" name="terminees" id="terminees">
-                <button type="submit">Rechercher</button>
             </form>
         </section>
+
 
         <section id="sorties">
             {% for message in app.flashes('success') %}
@@ -41,14 +66,17 @@
             {% for message in app.flashes('error') %}
                 <div class="alert alert-danger">{{ message }}</div>
             {% endfor %}
-            <table>
-                <thead>
-
-                </thead>
-                <tbody>
-                {% include 'sortie/_sortiesTable.html.twig' with {'sorties': sorties} %}
-                </tbody>
-            </table>
+            <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            {{ include('sortie/_sortiesTable.html.twig') }}
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </div>
         </section>
     </main>
 
