@@ -9,6 +9,11 @@
                 <div class="text-center mb-4">
                     <h2>Profil de {{ user.username }}</h2>
                 </div>
+                {% if profilePictureFilename is defined %}
+                    <img src="{{ asset('uploads/profile_pictures/' ~ profilePictureFilename) }}" alt="Photo de profil" class="img-fluid mb-4">
+                {% else %}
+                    <p class="text-center">Pas de photo de profil disponible</p>
+                {% endif %}
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">Campus : {{ user.campus.nom }}</li>
                     <li class="list-group-item">Nom : {{ user.name }}</li>

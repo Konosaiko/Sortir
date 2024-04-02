@@ -32,11 +32,29 @@ class ProfileController extends AbstractController
                 $user->setPassword($hashedPassword);
             }
 
+            // Gestion de l'upload de l'image de profil
+            $profilePictureFile = $form->get('profilePicture')->getData();
+            if ($profilePictureFile) {
+                $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $newFilename = $originalFilename.'-'.uniqid().'.'.$profilePictureFile->guessExtension();
+
+                try {
+                    $profilePictureFile->move(
+                        $this->getParameter('profile_picture_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // Gérer l'erreur
+                }
+
+                // Mettre à jour le chemin de l'image de profil dans l'entité utilisateur
+                $user->setProfilePicture($newFilename);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
             $this->addFlash('success', 'Votre profil a été mis à jour avec succès.');
-
 
             return $this->redirectToRoute('app_profile');
         }
@@ -64,8 +82,12 @@ class ProfileController extends AbstractController
             throw $this->createNotFoundException('L\'utilisateur demandé n\'existe pas.');
         }
 
+        // Récupérer le nom du fichier de la photo de profil
+        $profilePictureFilename = $user->getProfilePicture();
+
         return $this->render('profile/user_profile.html.twig', [
             'user' => $user,
+            'profilePictureFilename' => $profilePictureFilename, // Passer le nom du fichier au template Twig
         ]);
     }
 

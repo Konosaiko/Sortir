@@ -15,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserProfileType extends AbstractType
@@ -22,6 +23,11 @@ class UserProfileType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('profilePicture', FileType::class, [
+                'label' => 'Photo de profil',
+                'mapped' => false, // Ne pas mapper ce champ à une propriété de l'entité
+                'required' => false, // La photo de profil est facultative
+            ])
             ->add('firstName', TextType::class)
             ->add('name', TextType::class)
             ->add('username', TextType::class)
