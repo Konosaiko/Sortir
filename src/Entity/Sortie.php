@@ -50,9 +50,23 @@ class Sortie
     #[ORM\Column(length: 255)]
     private ?string $infos = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $motifAnnulation = "Aucun motif d'annulation";
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+    }
+
+    public function getMotifAnnulation(): ?string
+    {
+        return $this->motifAnnulation;
+    }
+
+    public function setMotifAnnulation(?string $motifAnnulation): self
+    {
+        $this->motifAnnulation = $motifAnnulation;
+        return $this;
     }
 
     public function getId(): ?int

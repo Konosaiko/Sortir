@@ -23,7 +23,9 @@
                             {{ sortie.user.username }}
                         </a>
                     </p>
-                    {% if sortie.dateHeureDebut > date('now') and sortie.users.contains(app.user) %}
+                    {% if sortie.etat.libelle == 'Annulée' %}
+                        <p><strong>Motif d'annulation:</strong> {{ sortie.motifAnnulation }}</p>
+                    {% elseif sortie.dateHeureDebut > date('now') and sortie.users.contains(app.user) %}
                         <p><strong>Je suis déjà inscrit à cette sortie : </strong></p>
                         <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}"
                            class="btn btn-warning"

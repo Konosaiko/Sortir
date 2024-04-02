@@ -33,17 +33,21 @@ class SortieService
 
         $etatTerminee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
 
+        $etatAnnulee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Annulée']);
+
         // Update sorties to 'Clôturée' if conditions are met
         $clotureeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
             SET s.etat = :etatCloturee 
             WHERE (s.registerLimit <= SIZE(s.users) OR s.dateLimite <= :now)
             AND s.etat != :etatCloturee
-            AND s.etat != :etatTerminee' // Ajout de cette condition
+            AND s.etat != :etatTerminee
+            AND s.etat != :etatAnnulee' // Ajout de cette condition
         )
             ->setParameter('etatCloturee', $etatCloturee)
             ->setParameter('now', $now)
-            ->setParameter('etatTerminee', $etatTerminee); // Ajout du paramètre etatTerminee
+            ->setParameter('etatTerminee', $etatTerminee)
+            ->setParameter('etatAnnulee', $etatAnnulee);// Ajout du paramètre etatTerminee
 
         // Execute update query for 'Clôturée' sorties
         $numUpdatedCloturee = $clotureeQuery->execute();
@@ -53,11 +57,13 @@ class SortieService
             'UPDATE App\Entity\Sortie s 
         SET s.etat = :etatOuverte 
         WHERE ((s.registerLimit > SIZE(s.users) AND s.dateLimite > :now) AND s.etat != :etatOuverte) 
-        AND s.etat != :etatEnCreation'
+        AND s.etat != :etatEnCreation
+        AND s.etat != :etatAnnulee'
         )
             ->setParameter('etatOuverte', $etatOuverte)
             ->setParameter('now', $now)
-            ->setParameter('etatEnCreation', $etatEnCreation);
+            ->setParameter('etatEnCreation', $etatEnCreation)
+            ->setParameter('etatAnnulee', $etatAnnulee);
 
         // Execute update query for 'Ouverte' sorties
         $numUpdatedOuverte = $ouverteQuery->execute();
@@ -66,11 +72,13 @@ class SortieService
             'UPDATE App\Entity\Sortie s 
     SET s.etat = :etatTerminee 
     WHERE (DATE_ADD(s.dateHeureDebut, s.duration, \'MINUTE\')) < :now
-    AND s.etat = :etatCloturee'
+    AND s.etat = :etatCloturee
+        AND s.etat != :etatAnnulee'
         )
             ->setParameter('etatTerminee', $etatTerminee)
             ->setParameter('now', $now)
-            ->setParameter('etatCloturee', $etatCloturee);
+            ->setParameter('etatCloturee', $etatCloturee)
+            ->setParameter('etatAnnulee', $etatAnnulee);
 
         $numUpdatedTerminee = $termineeQuery->execute();
 

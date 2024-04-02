@@ -1,4 +1,3 @@
-
 {% block body %}
     <h1>Liste des sorties</h1>
     {% for message in app.flashes('success') %}
@@ -28,42 +27,63 @@
 
         {% for sortie in sorties %}
             {% if selectedCampus is null or sortie.place.nom == selectedCampus.nom %}
-                {% if (sortie.etat.libelle != 'En création' or sortie.user == app.user) and sortie.etat.libelle != 'Annulée' %}
-                    <tr>
-                        <td>{{ sortie.nom }}</td>
-                        <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
-                        <td>{{ sortie.duration }}</td>
-                        <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
-                        <td>{{ sortie.registerLimit }}</td>
-                        <td>{{ sortie.etat.libelle }}</td>
-                        <td>{{ sortie.place.nom }}</td>
-                        <td><a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
-                                {{ sortie.user.username }}
-                            </a></td>
-                        <td>
-                            {% if sortie.users.contains(app.user) %}
-                                <i class="fas fa-times"></i> <!-- Icône "X" si l'utilisateur est inscrit -->
-                            {% else %}
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if sortie.users.contains(app.user) and sortie.dateHeureDebut > date('now') and sortie.dateLimite >= date('now') %}
-                                <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}" class="btn btn-warning" onclick="return confirm('Êtes-vous sûr de vouloir vous désister de cette sortie ?');">Se désister</a>
-                            {% endif %}
-                            <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
-                            {% if sortie.etat.libelle == 'En création' and sortie.user == app.user %}
-                                <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}" class="btn btn-primary">Modifier</a>
-                                <a href="{{ path('app_sortie_create_publish', {'id': sortie.id}) }}" class="btn btn-primary">Publier</a>
-                                <form method="post" action="{{ path('app_sortie_create_delete', {'id': sortie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ sortie.id) }}">
-                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                </form>
-                            {% elseif not sortie.users.contains(app.user) and sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') %}
-                                <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Voulez-vous vous inscrire à cette sortie ?')">S'inscrire</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endif %}
+                <tr>
+                    <td>{{ sortie.nom }}</td>
+                    <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                    <td>{{ sortie.duration }}</td>
+                    <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
+                    <td>{{ sortie.registerLimit }}</td>
+                    <td>{{ sortie.etat.libelle }}</td>
+                    <td>{{ sortie.place.nom }}</td>
+                    <td><a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
+                            {{ sortie.user.username }}
+                        </a></td>
+                    <td>
+                        {% if sortie.users.contains(app.user) %}
+                            <i class="fas fa-times"></i> <!-- Icône "X" si l'utilisateur est inscrit -->
+                        {% else %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if sortie.users.contains(app.user) and sortie.dateHeureDebut > date('now') and sortie.dateLimite >= date('now') and sortie.etat.libelle != 'Terminée' and sortie.etat.libelle != 'Clôturée' %}
+                            <a href="{{ path('app_sortie_desistement', {'id': sortie.id}) }}" class="btn btn-warning" onclick="return confirm('Êtes-vous sûr de vouloir vous désister de cette sortie ?');">Se désister</a>
+                        {% endif %}
+                        <a href="{{ path('app_sortie_create_show', {'id': sortie.id}) }}" class="btn btn-primary">Afficher</a>
+                        {% if sortie.etat.libelle == 'En création' and sortie.user == app.user %}
+                            <a href="{{ path('app_sortie_create_edit', {'id': sortie.id}) }}" class="btn btn-primary">Modifier</a>
+                            <a href="{{ path('app_sortie_create_publish', {'id': sortie.id}) }}" class="btn btn-primary">Publier</a>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#motifAnnulationModal{{ sortie.id }}">Annuler la sortie</button>
+                            <div class="modal fade" id="motifAnnulationModal{{ sortie.id }}" tabindex="-1" role="dialog" aria-labelledby="motifAnnulationModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="motifAnnulationModalLabel">Motif de l'annulation</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action="{{ path('app_sortie_create_cancel', {'id': sortie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette sortie ?');">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ sortie.id) }}">
+                                                <div class="form-group">
+                                                    <label for="motifAnnulationTextarea">Motif de l'annulation :</label>
+                                                    <textarea id="motifAnnulationTextarea" name="motifAnnulation" class="form-control" required></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-danger">Annuler la sortie</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <form method="post" action="{{ path('app_sortie_create_delete', {'id': sortie.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette sortie ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ sortie.id) }}">
+                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                            </form>
+                        {% elseif not sortie.users.contains(app.user) and sortie.etat.libelle == 'Ouverte' and sortie.dateLimite > date('now') %}
+                            <a href="{{ path('app_sortie_inscription', {'id': sortie.id}) }}" class="btn btn-primary" onclick="return confirm('Voulez-vous vous inscrire à cette sortie ?')">S'inscrire</a>
+                        {% endif %}
+                    </td>
+                </tr>
             {% endif %}
         {% endfor %}
         </tbody>

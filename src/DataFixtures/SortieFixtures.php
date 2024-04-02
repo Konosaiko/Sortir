@@ -56,6 +56,8 @@ class SortieFixtures extends Fixture implements DependentFixtureInterface
             $lieu = $this->getReference('lieu_' . $faker->numberBetween(0, 9));
             $sortie->setAddress($lieu);
 
+            $sortie->setMotifAnnulation("Aucun motif d'annulation");
+
             $manager->persist($sortie);
         }
 
