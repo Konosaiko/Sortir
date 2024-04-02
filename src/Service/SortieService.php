@@ -20,7 +20,7 @@ class SortieService
     {
         // Get the current DateTime
         $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
-
+        $oneMonthAgo = (clone $now)->modify('-1 month');
         // Get the EntityManager
         $em = $this->entityManager;
 
@@ -34,6 +34,8 @@ class SortieService
         $etatTerminee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
 
         $etatAnnulee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Annulée']);
+
+        $etatHistorisee =  $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Historisée']);
 
         // Update sorties to 'Clôturée' if conditions are met
         $clotureeQuery = $em->createQuery(
@@ -82,8 +84,21 @@ class SortieService
 
         $numUpdatedTerminee = $termineeQuery->execute();
 
+         $historiseeQuery = $em->createQuery(
+             'UPDATE App\Entity\Sortie s
+            SET s.etat = :etatHistorisee
+            WHERE s.dateHeureDebut <= :oneMonthAgo
+            AND s.etat != :etatHistorisee'
+         )
+             ->setParameter('etatHistorisee', $etatHistorisee)
+             ->setParameter('oneMonthAgo', $oneMonthAgo);
+
+        $numUpdatedHistorisee = $historiseeQuery->execute();
+
+
+
         // Return the total number of updated sorties
-        return $numUpdatedCloturee + $numUpdatedOuverte + $numUpdatedTerminee;
+        return $numUpdatedCloturee + $numUpdatedOuverte + $numUpdatedTerminee + $numUpdatedHistorisee;
     }
 
 }

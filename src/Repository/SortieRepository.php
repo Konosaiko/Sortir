@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-use App\Entity\Etat;
 use App\Entity\Sortie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -59,21 +58,21 @@ class SortieRepository extends ServiceEntityRepository
                 ->setParameter('organisateur', $filterOptions['organisateur']);
         }
 
-
         // Filtrage par état 'Terminée'
         if (!empty($filterOptions['terminees'])) {
-            $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+            $etatTerminee = $this->_em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
             $qb->andWhere('s.etat = :etatTerminee')
-                ->setParameter('etatTerminee', $etatTerminee);
-        } else {
-            // Si le filtre n'est pas coché, excluez les sorties à l'état "Terminée"
-            $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
-            $qb->andWhere('s.etat != :etatTerminee')
                 ->setParameter('etatTerminee', $etatTerminee);
         }
 
         return $qb->getQuery()->getResult();
     }
+
+
+
+
+
+
 
 
     //    /**
