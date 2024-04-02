@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Sortie;
+use App\Entity\Etat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -21,7 +22,7 @@ class SortieRepository extends ServiceEntityRepository
         parent::__construct($registry, Sortie::class);
     }
 
-    public function findAllSorties(array $filterOptions)
+    public function findAllSorties(array $filterOptions, $user = null)
     {
         $qb = $this->createQueryBuilder('s')
             ->leftJoin('s.users', 'users') // Précharge les utilisateurs inscrits
@@ -60,15 +61,29 @@ class SortieRepository extends ServiceEntityRepository
 
         // Filtrage par état 'Terminée'
         if (!empty($filterOptions['terminees'])) {
-            $etatTerminee = $this->_em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+            $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
             $qb->andWhere('s.etat = :etatTerminee')
                 ->setParameter('etatTerminee', $etatTerminee);
         }
 
+        if (!empty($filterOptions['inscrit']) && $user !== null) {
+            $qb->andWhere(':user MEMBER OF s.users')
+                ->setParameter('user', $user);
+        }
+
+        // Filtrage par utilisateur non inscrit
+        if (!empty($filterOptions['non_inscrit']) && $user !== null) {
+            $qb->andWhere(':user NOT MEMBER OF s.users');
+                if (empty($filterOptions['terminees'])) {
+                    $etatTerminee = $this->getEntityManager()->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
+                    $qb->andWhere('s.etat != :etatTerminee')
+                        ->setParameter('etatTerminee', $etatTerminee);
+                }
+        $qb->setParameter('user', $user);
+        }
+
         return $qb->getQuery()->getResult();
     }
-
-
 
 
 

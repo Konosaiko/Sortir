@@ -53,6 +53,8 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(Request $request, UserInterface $user): Response
     {
+
+        $user = $this->getUser();
         // Préparez les options de filtrage
         $filterOptions = [
             'campus' => $request->query->get('campus'),
@@ -61,6 +63,8 @@ class HomeController extends AbstractController
             'date2' => $request->query->get('date2'),
             'organisateur' => $request->query->get('organisateur') ? $user : null,
             'terminees' => $request->query->get('terminees'),
+            'inscrit' => $request->query->get('inscrit'),
+            'non_inscrit' => $request->query->get('non_inscrit'),
         ];
 
         $campuses = $this->entityManager->getRepository(Campus::class)->findAll();
@@ -75,7 +79,7 @@ class HomeController extends AbstractController
         $numUpdated = $this->sortieService->updateSortieEtats();
 
         // Récupérez toutes les sorties avec les options de filtrage
-        $sorties = $this->entityManager->getRepository(Sortie::class)->findAllSorties($filterOptions);
+        $sorties = $this->entityManager->getRepository(Sortie::class)->findAllSorties($filterOptions, $user);
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
