@@ -33,7 +33,25 @@
                     <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                     <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
                     <td>{{ sortie.registerLimit }}</td>
-                    <td>{{ sortie.etat.libelle }}</td>
+                    <td>
+                    <span class="rounded-pill
+                        {% if sortie.etat.libelle == 'Ouverte' %}
+                            bg-success
+                        {% elseif sortie.etat.libelle == 'Clôturée' %}
+                            bg-danger
+                        {% elseif sortie.etat.libelle == 'En cours' %}
+                            bg-warning
+                        {% elseif sortie.etat.libelle == 'Terminée' %}
+                            bg-secondary
+                        {% elseif sortie.etat.libelle == 'Annulée' %}
+                            bg-dark
+                        {% else %}
+                            bg-primary
+                        {% endif %}
+                    " style="display: inline-block; width: auto; padding: .25em .6em; font-size: 1rem; line-height: 1.5;">
+                        {{ sortie.etat.libelle }}
+                    </span>
+                    </td>
                     <td>{{ sortie.place.nom }}</td>
                     <td><a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">
                             {{ sortie.user.username }}
