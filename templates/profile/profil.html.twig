@@ -18,6 +18,15 @@
             </div>
         {% endfor %}
 
+        {# Afficher la photo de profil actuelle s'il y en a une #}
+        {% if profilePictureFilename %}
+            <div class="mb-3">
+                <img src="{{ asset('uploads/profile_pictures/' ~ profilePictureFilename) }}" alt="Photo de profil actuelle" class="img-fluid rounded-circle" style="max-width: 150px;">
+            </div>
+        {% endif %}
+
+        <li class="list-group-item">Campus : {{ user.campus.nom }}</li>
+
         {% for field in form %}
             {# Exclure le champ CSRF Token de l'affichage #}
             {% if field.vars.name != '_token' and field.vars.name != 'plainPassword' %}
@@ -52,52 +61,5 @@
         </div>
         {{ form_end(form) }}
     </div>
-
-
-
-<script>
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const passwordField = document.querySelector('#user_profile_plainPassword_first');
-            const confirmPasswordField = document.querySelector('#user_profile_plainPassword_second');
-
-            let passwordError = document.getElementById('passwordError');
-            if (!passwordError) {
-                passwordError = document.createElement('div');
-                passwordError.id = 'passwordError';
-                passwordError.style.color = 'red';
-            }
-
-            // Function to check password length
-            function checkPasswordLength() {
-                if (passwordField.value.length > 0 && passwordField.value.length < 6) {
-                    passwordError.textContent = 'Le mot de passe est trop court.';
-                    if (!passwordField.nextElementSibling || passwordField.nextElementSibling.id !== 'passwordError') {
-                        passwordField.parentNode.insertBefore(passwordError, passwordField.nextSibling);
-                    }
-                } else {
-                    passwordError.textContent = '';
-                }
-            }
-
-            // Function to check if passwords match
-            function checkPasswordsMatch() {
-                if (passwordField.value && confirmPasswordField.value && passwordField.value !== confirmPasswordField.value) {
-                    passwordError.textContent = 'Les mots de passe ne correspondent pas.';
-                    if (!confirmPasswordField.nextElementSibling || confirmPasswordField.nextElementSibling.id !== 'passwordError') {
-                        confirmPasswordField.parentNode.insertBefore(passwordError, confirmPasswordField.nextSibling);
-                    }
-                } else {
-                    passwordError.textContent = '';
-                }
-            }
-
-            passwordField.addEventListener('input', checkPasswordLength);
-            confirmPasswordField.addEventListener('input', checkPasswordsMatch);
-        });
-    </script>
-
-
-
 
 {% endblock %}

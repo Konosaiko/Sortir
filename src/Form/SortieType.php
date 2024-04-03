@@ -12,7 +12,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 class SortieType extends AbstractType
 {
 
@@ -43,23 +43,11 @@ class SortieType extends AbstractType
             ->add('infos', null, [
         'label' => "Description : "
     ])
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'username',
-                'label' => 'Organisateur : ',
-                'disabled' => true, // Désactivez le champ pour le cacher dans le formulaire
-            ])
-            ->add('place', EntityType::class, [
-                'class' => Campus::class,
-                'choice_label' => 'nom',
-                'label' => 'Campus : '
-            ])
             ->add('address', EntityType::class, [
                 'class' => Lieu::class,
                 'choice_label' => 'nom',
                 'label' => 'Adresse : '
             ])
-
             ->add('enregistrer', SubmitType::class, [
                 'label' => 'Enregistrer',
                 'attr' => ['class' => 'btn btn-primary'],

@@ -39,26 +39,40 @@ class SortieCreateController extends AbstractController
         $user = $this->getUser();
         $sortie->setUser($user);
 
+        $campus = $user->getCampus();
+        // Définir le campus de l'utilisateur comme campus de la sortie
+        $sortie->setPlace($campus);
+
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $clickedButton = $form->getClickedButton();
-            if ($clickedButton && 'publier' === $clickedButton->getName()) {
-                // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
-                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
-                $sortie->setEtat($etat);
+            $dateHeureDebut = $sortie->getDateHeureDebut();
+            $dateLimite = $sortie->getDateLimite();
+
+            if ($dateHeureDebut <= $dateLimite) {
+                // Afficher un message d'erreur
+                $this->addFlash('error', 'La date limite doit être postérieure à la date de début.');
+                return $this->redirectToRoute('app_sortie_create_new'); // Rediriger où vous le souhaitez
             } else {
-                // Définir l'état de la sortie sur "En création" par défaut
-                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
-                $sortie->setEtat($etat);
+                // Si les dates sont valides, continuer avec le traitement normal du formulaire
+                $clickedButton = $form->getClickedButton();
+                if ($clickedButton && 'publier' === $clickedButton->getName()) {
+                    // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
+                    $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+                    $sortie->setEtat($etat);
+                } else {
+                    // Définir l'état de la sortie sur "En création" par défaut
+                    $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
+                    $sortie->setEtat($etat);
+                }
+
+                // Traitement du formulaire et enregistrement de la sortie
+                $entityManager->persist($sortie);
+                $entityManager->flush();
+
+                return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
             }
-
-            // Traitement du formulaire et enregistrement de la sortie
-            $entityManager->persist($sortie);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/new.html.twig', [
@@ -123,7 +137,6 @@ class SortieCreateController extends AbstractController
     #[Route('/{id}/cancel', name: 'app_sortie_create_cancel', methods: ['POST'])]
     public function cancel(Request $request, Sortie $sortie, EntityManagerInterface $entityManager): Response
     {
-
         // Vérifiez si le formulaire a été soumis
         if ($request->isMethod('POST')) {
             // Récupérez le motif d'annulation à partir de la requête
