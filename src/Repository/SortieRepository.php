@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Etat;
 use App\Entity\Sortie;
-use App\Entity\Etat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

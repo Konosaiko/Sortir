@@ -1,0 +1,51 @@
+{# templates/admin/dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord d'administration{% endblock %}
+
+{% block body %}
+
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Tableau de bord d'administration</h1>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        Gestion utilisateurs
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Ajouter, modifier ou supprimer des utilisateurs</p>
+                        <a href="{{ path('admin_users') }}" class="btn btn-primary">Gérer les utilisateurs</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        Gestion campus
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Ajouter, modifier ou supprimer des campus</p>
+                        <a href="{{ path('admin_campus') }}" class="btn btn-primary">Gérer les campus</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        Gestion villes
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Ajouter, modifier ou supprimer des villes</p>
+                        <a href="{{ path('admin_villes') }}" class="btn btn-primary">Gérer les villes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
