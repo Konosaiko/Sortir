@@ -13,12 +13,10 @@
                     <h3>Filtrer les sorties</h3>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <select name="campus" id="campus" class="form-control">
+                            <select name="campus" id="campus">
                                 <option value="">Tous les campus</option>
                                 {% for campus in campuses %}
-                                    <option value="{{ campus.nom }}" {% if selectedCampus and selectedCampus.nom == campus.nom %}selected{% endif %}>
-                                        {{ campus.nom }}
-                                    </option>
+                                    <option value="{{ campus.nom }}" {% if selectedCampus and selectedCampus.nom == campus.nom %}selected{% elseif userCampus and userCampus.nom == campus.nom %}selected{% endif %}>{{ campus.nom }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -53,10 +51,10 @@
                         <button type="submit" class="btn btn-primary">Rechercher</button>
                     </div>
 
-                        <div class="col-md-1">
-                            <h5>Participant : {{ app.user.username }}</h5>
-                            <p>Date du jour : {{ 'now'|date('d/m/Y') }}</p>
-                        </div>
+                    <div class="col-md-1">
+                        <h5>Participant : {{ app.user.username }}</h5>
+                        <p>Date du jour : {{ 'now'|date('d/m/Y') }}</p>
+                    </div>
 
                 </div>
 
@@ -73,15 +71,15 @@
                 <div class="alert alert-danger">{{ message }}</div>
             {% endfor %}
             <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-md-12">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            {{ include('sortie/_sortiesTable.html.twig') }}
-                        </table>
+                <div class="row justify-content-center">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                {{ include('sortie/_sortiesTable.html.twig') }}
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
         </section>
     </main>

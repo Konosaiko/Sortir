@@ -54,6 +54,8 @@ class HomeController extends AbstractController
     public function index(Request $request, UserInterface $user): Response
     {
 
+        $userCampus = $user->getCampus();
+
         // Préparez les options de filtrage
         $filterOptions = [
             'campus' => $request->query->get('campus'),
@@ -93,6 +95,7 @@ class HomeController extends AbstractController
             'sorties' => $sorties,
             'selectedCampus' => $selectedCampus,
             'user' => $user,
+            'userCampus' => $userCampus, // Transmettre le campus de l'utilisateur connecté au modèle Twig
             'date1' => $filterOptions['date1'],
             'date2' => $filterOptions['date2'],
         ]);

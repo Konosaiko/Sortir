@@ -89,20 +89,31 @@ class SortieCreateController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $clickedButton = $form->getClickedButton();
-            if ($clickedButton && 'publier' === $clickedButton->getName()) {
-                // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
-                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
-                $sortie->setEtat($etat);
+            $dateHeureDebut = $sortie->getDateHeureDebut();
+            $dateLimite = $sortie->getDateLimite();
+
+            if ($dateHeureDebut <= $dateLimite) {
+                // Afficher un message d'erreur
+                $this->addFlash('error', 'La date limite doit être postérieure à la date de début.');
+                // Rediriger vers la page de modification avec le formulaire pré-rempli
+                return $this->redirectToRoute('app_sortie_create_edit', ['id' => $sortie->getId()]);
             } else {
-                // Définir l'état de la sortie sur "En création" par défaut
-                $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
-                $sortie->setEtat($etat);
+                // Si les dates sont valides, continuer avec le traitement normal du formulaire
+                $clickedButton = $form->getClickedButton();
+                if ($clickedButton && 'publier' === $clickedButton->getName()) {
+                    // Définir l'état de la sortie sur "Ouverte" si le bouton "Publier" a été cliqué
+                    $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+                    $sortie->setEtat($etat);
+                } else {
+                    // Définir l'état de la sortie sur "En création" par défaut
+                    $etat = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
+                    $sortie->setEtat($etat);
+                }
+
+                $entityManager->flush();
+
+                return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
             }
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('sortie_create/edit.html.twig', [
