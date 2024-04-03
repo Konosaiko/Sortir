@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les campus{% endblock %}
+
+{% block body %}
+    <h1>Gérer les campus</h1>
+
+    <div class="container mt-5">
+        <h2>Liste des campus</h2>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nom du campus</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {# Liste des campus existants #}
+            {% for campus in campuses %}
+                <tr>
+                    <td>{{ campus.nom }}</td>
+                    <td>
+                        {# Lien pour éditer le campus #}
+                        <a href="{{ path('admin_campus_edit', {'id': campus.id}) }}" class="btn btn-secondary">Éditer</a>
+
+                        {# Formulaire pour supprimer le campus #}
+                        <form action="{{ path('admin_campus_delete', {'id': campus.id}) }}" method="post" style="display: inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ campus.id) }}">
+                            <button type="submit" class="btn btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+
+            {# Formulaire d'ajout de campus #}
+            <tr>
+                <td>
+                    {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+                    <div class="form-group mb-2">
+                        {{ form_widget(form.nom, {'attr': {'placeholder': 'Nom du campus', 'class': 'form-control mr-2'}}) }}
+                    </div>
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                    {{ form_end(form) }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
