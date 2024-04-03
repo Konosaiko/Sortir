@@ -16,7 +16,7 @@
                     <p><strong>Nom de la sortie:</strong> {{ sortie.nom }}</p>
                     <p><strong>Date et heure de la sortie:</strong> {{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</p>
                     <p><strong>Date limite d'inscription:</strong> {{ sortie.dateLimite|date('d/m/Y H:i') }}</p>
-                    <p><strong>Nombre de places:</strong> {{ sortie.registerLimit }}</p>
+                    <p><strong>Utilisateurs inscrits:</strong> {{ sortie.users|length }} / {{ sortie.registerLimit }}</p>
                     <p><strong>Durée (en minutes):</strong> {{ sortie.duration }}</p>
                     <p><strong>Organisateur:</strong>
                         <a href="{{ path('app_user_profile', {'username': sortie.user.username}) }}">

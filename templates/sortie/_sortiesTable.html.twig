@@ -32,7 +32,7 @@
                     <td>{{ sortie.nom }}</td>
                     <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                     <td>{{ sortie.dateLimite|date('d/m/Y') }}</td>
-                    <td>{{ sortie.registerLimit }}</td>
+                    <td>{{ sortie.users|length }} / {{ sortie.registerLimit }}</td>
                     <td>
                     <span class="rounded-pill
                         {% if sortie.etat.libelle == 'Ouverte' %}
