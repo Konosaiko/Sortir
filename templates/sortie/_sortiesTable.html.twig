@@ -40,11 +40,11 @@
                         {% elseif sortie.etat.libelle == 'Clôturée' %}
                             bg-danger
                         {% elseif sortie.etat.libelle == 'En cours' %}
-                            bg-success
+                            bg-warning
                         {% elseif sortie.etat.libelle == 'Terminée' %}
                             bg-secondary
                         {% elseif sortie.etat.libelle == 'Annulée' %}
-                            bg-warning
+                           text-danger bg-dark
                         {% else %}
                             bg-primary
                         {% endif %}
