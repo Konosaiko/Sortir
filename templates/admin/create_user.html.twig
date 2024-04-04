@@ -12,9 +12,17 @@
                 {% for field in form %}
                     {% if field.vars.name != '_token' %}
                         <div class="mb-3">
-                            {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
-                            {{ form_errors(field, {'attr': {'class': 'form-text text-danger'}}) }}
+                            {% if field.vars.name == 'active' %}
+                                <div class="form-check">
+                                    {{ form_widget(field, {'attr': {'class': 'form-check-input'}}) }}
+                                    {{ form_label(field, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                    {{ form_errors(field, {'attr': {'class': 'form-text text-danger'}}) }}
+                                </div>
+                            {% else %}
+                                {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(field, {'attr': {'class': 'form-text text-danger'}}) }}
+                            {% endif %}
                         </div>
                     {% endif %}
                 {% endfor %}
