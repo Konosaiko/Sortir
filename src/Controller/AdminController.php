@@ -10,11 +10,13 @@ use App\Form\UserProfileType;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 
 #[Route('/admin', name: 'admin_')]
@@ -49,7 +51,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/edit/{id}', name: 'user_edit')]
-    public function editUser(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function editUser(Request $request, User $user, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(UserProfileType::class, $user, [
             'allow_password_change' => false,
@@ -57,6 +59,23 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $profilePictureFile = $form->get('profilePicture')->getData();
+
+            if ($profilePictureFile) {
+                $originalFilename = pathinfo($profilePictureFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$profilePictureFile->guessExtension();
+
+                try {
+                    $profilePictureFile->move(
+                        $this->getParameter('profile_picture_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // ... gérer l'exception si quelque chose se passe pendant l'upload du fichier
+                }
+            }
+            $user->setProfilePicture($newFilename);
             $entityManager->flush();
             $this->addFlash('success', 'Utilisateur mis à jour avec succès.');
             return $this->redirectToRoute('admin_users');
@@ -66,6 +85,8 @@ class AdminController extends AbstractController
             'userForm' => $form->createView(),
         ]);
     }
+
+
 
 
     #[Route('/users/toggle-active/{id}', name: 'user_toggle_active')]
@@ -148,7 +169,7 @@ class AdminController extends AbstractController
 
             $this->addFlash('success', 'Campus ajouté avec succès.');
 
-            return $this->redirectToRoute('admin_campus');
+            return $this->redirectToRoute('admin_campus_add');
         }
 
         return $this->render('admin/_addCampus.html.twig', [
