@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 #[Route('/admin', name: 'admin_')]
 class AdminController extends AbstractController
 {
+
     private $entityManager;
 
     private $security;
