@@ -1,0 +1,9 @@
+{% block body %}
+    {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+    <div class="form-group mb-2">
+        {{ form_widget(form.nom, {'attr': {'placeholder': 'Nom du campus', 'class': 'form-control mr-2'}}) }}
+    </div>
+    <button type="submit" class="btn btn-success">Ajouter</button>
+    {{ form_end(form) }}
+{% endblock %}
+
