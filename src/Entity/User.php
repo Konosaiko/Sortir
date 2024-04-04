@@ -44,8 +44,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20)]
     private ?string $phone = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $active = null;
+    #[ORM\Column(nullable: false)]
+    private ?bool $active = true;
 
     #[ORM\ManyToMany(targetEntity: Sortie::class, inversedBy: 'users')]
     private Collection $isRegister;

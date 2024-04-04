@@ -27,8 +27,8 @@ class UserProfileType extends AbstractType
                 'label' => 'Pseudo'
             ])
             ->add('firstName', TextType::class, [
-        'label' => 'Prénom'
-        ])
+                'label' => 'Prénom'
+             ])
             ->add('name', TextType::class, [
                 'label' => 'Nom'
             ])
@@ -37,23 +37,27 @@ class UserProfileType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email'
-            ])
-            ->add('plainPassword', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'mapped' => false,
-                'required' => false,
-                'first_options'  => ['label' => 'Nouveau mot de passe (laisser vide pour ne pas changer)'],
-                'second_options' => ['label' => 'Confirmation du nouveau mot de passe'],
-                'invalid_message' => 'Les deux mots de passe doivent correspondre.',
-                'constraints' => [
-                    new Length([
-                        'min' => 6,
-                        'max' => 4096,
-                        'minMessage' => 'Votre mot de passe doit comporter au moins {{ limit }} caractères.',
-                        'maxMessage' => 'Votre mot de passe ne peut pas dépasser {{ limit }} caractères.',
-                    ]),
-                ],
-            ])
+            ]);
+
+            if ($options['allow_password_change']) {
+                $builder->add('plainPassword', RepeatedType::class, [
+                    'type' => PasswordType::class,
+                    'mapped' => false,
+                    'required' => false,
+                    'first_options'  => ['label' => 'Nouveau mot de passe (laisser vide pour ne pas changer)'],
+                    'second_options' => ['label' => 'Confirmation du nouveau mot de passe'],
+                    'invalid_message' => 'Les deux mots de passe doivent correspondre.',
+                    'constraints' => [
+                        new Length([
+                            'min' => 6,
+                            'max' => 4096,
+                            'minMessage' => 'Votre mot de passe doit comporter au moins {{ limit }} caractères.',
+                            'maxMessage' => 'Votre mot de passe ne peut pas dépasser {{ limit }} caractères.',
+                        ]),
+                    ],
+                ]);
+            }
+            $builder
             ->add('profilePicture', FileType::class, [
                 'label' => 'Photo de profil',
                 'mapped' => false, // Ne pas mapper ce champ à une propriété de l'entité
@@ -66,6 +70,7 @@ class UserProfileType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'allow_password_change' => true,
         ]);
     }
 }
