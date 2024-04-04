@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les villes{% endblock %}
+
+{% block body %}
+    <h1>Gérer les villes</h1>
+
+    <div class="container mt-5">
+        <h2>Liste des villes</h2>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Nom de la ville</th>
+                <th>Code postal</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {# Liste des villes existantes #}
+            {% for ville in villes %}
+                <tr>
+                    <td>{{ ville.nom }}</td>
+                    <td>{{ ville.codePostal }}</td>
+                    <td>
+                        <a href="{{ path('admin_ville_edit', {'id': ville.id}) }}" class="btn btn-primary">Éditer</a>
+                        {# Bouton pour supprimer la ville #}
+                        <form action="{{ path('admin_ville_delete', {'id': ville.id}) }}" method="post" style="display: inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.id) }}">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Voulez-vous supprimer cette ville ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+
+            {# Formulaire d'ajout de ville #}
+            <tr>
+                <td colspan="3">
+                    {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+                    <div class="form-group mb-2">
+                        {{ form_widget(form.nom, {'attr': {'placeholder': 'Nom de la ville', 'class': 'form-control mr-2'}}) }}
+                    </div>
+                    <div class="form-group mb-2">
+                        {{ form_widget(form.codePostal, {'attr': {'placeholder': 'Code postal', 'class': 'form-control mr-2'}}) }}
+                    </div>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                    {{ form_end(form) }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
