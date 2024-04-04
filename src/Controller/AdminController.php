@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Campus;
 use App\Entity\User;
+use App\Entity\Ville;
 use App\Form\CampusType;
 use App\Form\CreateUserType;
 use App\Form\UserProfileType;
+use App\Form\VilleType;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -215,9 +217,67 @@ class AdminController extends AbstractController
     }
 
     #[Route('/villes', name: 'villes')]
-    public function manageVilles()
+    public function manageVilles(Request $request): Response
     {
+        $ville = new Ville(); // Initialisation de la variable ville
+        $form = $this->createForm(VilleType::class, $ville);
+        $form->handleRequest($request);
 
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Traitement du formulaire et enregistrement de la ville
+            $this->entityManager->persist($ville);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Ville ajoutée avec succès.');
+
+            return $this->redirectToRoute('admin_villes');
+        }
+
+        // Récupérer toutes les villes
+        $villes = $this->entityManager->getRepository(Ville::class)->findAll();
+
+        return $this->render('admin/manageVilles.html.twig', [
+            'form' => $form->createView(),
+            'villes' => $villes, // Passer les villes à la vue
+        ]);
     }
 
+    #[Route('/villes/edit/{id}', name: 'ville_edit')]
+    public function editVille(Request $request, Ville $ville): Response
+    {
+        // Création du formulaire de modification de la ville
+        $form = $this->createForm(VilleType::class, $ville);
+
+        // Traitement de la soumission du formulaire
+        $form->handleRequest($request);
+
+        // Vérification de la validité du formulaire
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Enregistrement des modifications dans la base de données
+            $this->entityManager->flush();
+
+            // Redirection vers la page de gestion des villes avec un message de succès
+            $this->addFlash('success', 'La ville a été modifiée avec succès.');
+            return $this->redirectToRoute('admin_villes');
+        }
+
+        // Rendu de la vue avec le formulaire de modification de la ville
+        return $this->render('admin/editVille.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/villes/delete/{id}', name: 'ville_delete')]
+    public function deleteVille(Request $request, Ville $ville): Response
+    {
+        // Supprimer la ville de la base de données
+        $this->entityManager->remove($ville);
+        $this->entityManager->flush();
+
+        // Ajouter un message flash pour confirmer la suppression
+        $this->addFlash('success', 'La ville a été supprimée avec succès.');
+
+        // Rediriger l'utilisateur vers la page des villes
+        return $this->redirectToRoute('admin_villes');
+    }
 }
