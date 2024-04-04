@@ -26,6 +26,7 @@ class CreateUserType extends AbstractType
             ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
+                'label' => 'Mot de passe'
             ])
             ->add('firstName', TextType::class, [
                 'label' => 'Prénom'

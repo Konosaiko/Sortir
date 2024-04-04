@@ -1,16 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-
-{% endblock %}
+{% block title %}Créer un nouvel utilisateur{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>Créer un nouvel utilisateur</h1>
-        {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <button class="btn btn-success">Créer</button>
-        {{ form_end(form) }}
+    <div class="container mt-4">
+        <h1 class="mb-3 text-center">Créer un nouvel utilisateur</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                {% for field in form %}
+                    {% if field.vars.name != '_token' %}
+                        <div class="mb-3">
+                            {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(field, {'attr': {'class': 'form-text text-danger'}}) }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <button type="submit" class="btn btn-success btn-lg btn-block">Créer</button>
+                {{ form_end(form) }}
+            </div>
+        </div>
     </div>
 {% endblock %}
-

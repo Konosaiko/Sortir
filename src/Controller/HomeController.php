@@ -76,8 +76,7 @@ class HomeController extends AbstractController
             $selectedCampus = $this->entityManager->getRepository(Campus::class)->findOneBy(['nom' => $filterOptions['campus']]);
         }
 
-        // Mise à jour des états des sorties avant de récupérer la liste
-        $numUpdated = $this->sortieService->updateSortieEtats();
+
 
         // Récupérez toutes les sorties avec les options de filtrage
         $sorties = $this->entityManager->getRepository(Sortie::class)->findAllSorties($filterOptions, $user);
