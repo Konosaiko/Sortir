@@ -31,6 +31,29 @@
                     <td>
                         {# Bouton pour ouvrir la fenêtre modale de modification du nom du campus #}
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#editModal{{ campus.id }}">Éditer</button>
+                        {# Fenêtre modale de modification du nom du campus #}
+                        <div class="modal fade" id="editModal{{ campus.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ campus.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel{{ campus.id }}">Modifier le nom du campus</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {# Formulaire de modification du nom du campus #}
+                                        <form action="{{ path('admin_campus_edit', {'id': campus.id}) }}" method="post">
+                                            <div class="form-group">
+                                                <label for="newName{{ campus.id }}">Nouveau nom :</label>
+                                                <input type="text" id="newName{{ campus.id }}" name="newName" class="form-control" value="{{ campus.nom }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         {# Formulaire pour supprimer le campus #}
                         <form action="{{ path('admin_campus_delete', {'id': campus.id}) }}" method="post" style="display: inline;">
@@ -41,29 +64,7 @@
                     </td>
                 </tr>
 
-                {# Fenêtre modale de modification du nom du campus #}
-                <div class="modal fade" id="editModal{{ campus.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel{{ campus.id }}" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editModalLabel{{ campus.id }}">Modifier le nom du campus</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                {# Formulaire de modification du nom du campus #}
-                                <form action="{{ path('admin_campus_edit', {'id': campus.id}) }}" method="post">
-                                    <div class="form-group">
-                                        <label for="newName{{ campus.id }}">Nouveau nom :</label>
-                                        <input type="text" id="newName{{ campus.id }}" name="newName" class="form-control" value="{{ campus.nom }}">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             {% endfor %}
 
 
@@ -74,8 +75,8 @@
                     <div class="form-group mb-2">
                         {{ form_widget(form.nom, {'attr': {'placeholder': 'Nom du campus', 'class': 'form-control mr-2'}}) }}
                     </div>
-                </td>
-                <td>
+
+
                     <button type="submit" class="btn btn-success">Ajouter</button>
                     {{ form_end(form) }}
                 </td>

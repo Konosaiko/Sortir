@@ -72,7 +72,7 @@ class AdminController extends AbstractController
                         $newFilename
                     );
                 } catch (FileException $e) {
-                    // ... gérer l'exception si quelque chose se passe pendant l'upload du fichier
+
                 }
             }
             $user->setProfilePicture($newFilename);
