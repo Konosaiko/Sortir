@@ -67,6 +67,7 @@ class AdminController extends AbstractController
         ]);
     }
 
+
     #[Route('/users/toggle-active/{id}', name: 'user_toggle_active')]
     public function toggleUserActive(User $user, EntityManagerInterface $entityManager): Response
     {
