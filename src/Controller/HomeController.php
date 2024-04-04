@@ -133,6 +133,12 @@ class HomeController extends AbstractController
         }
 
         $sortie->addUser($user);
+        if (count($sortie->getUsers()) >= $sortie->getRegisterLimit()) {
+            // Trouver l'état "Clôturée"
+            $etatCloturee = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Clôturée']);
+            $sortie->setEtat($etatCloturee);
+
+        }
         $entityManager->flush();
 
         $this->addFlash('success', 'Votre inscription à la sortie a été enregistrée.');
@@ -167,6 +173,16 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        if ($sortie->getUsers()->contains($user)) {
+            $sortie->removeUser($user);
+            $entityManager->flush();
+            $now = new \DateTime();
+            if ($sortie->getUsers()->count() < $sortie->getRegisterLimit() && $sortie->getDateLimite() > $now) {
+                $etatOuverte = $entityManager->getRepository(Etat::class)->findOneBy(['libelle'=> 'Ouverte']);
+                $sortie->setEtat($etatOuverte);
+                $entityManager->flush();
+            }
+        }
         $sortie->removeUser($user);
         $entityManager->flush();
 

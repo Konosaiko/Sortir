@@ -18,87 +18,61 @@ class SortieService
 
     public function updateSortieEtats(): int
     {
-        // Get the current DateTime
         $now = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $oneMonthAgo = (clone $now)->modify('-1 month');
-        // Get the EntityManager
         $em = $this->entityManager;
 
-        // Retrieve the Etat 'Clôturée'
-        $etatCloturee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Clôturée']);
-        // Retrieve the Etat 'Ouverte'
-        $etatOuverte = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+        $etats = $em->getRepository(Etat::class)->findAll();
+        $etatMap = [];
+        foreach ($etats as $etat) {
+            $etatMap[$etat->getLibelle()] = $etat;
+        }
 
-        $etatEnCreation = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'En création']);
-
-        $etatTerminee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Terminée']);
-
-        $etatAnnulee = $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Annulée']);
-
-        $etatHistorisee =  $em->getRepository(Etat::class)->findOneBy(['libelle' => 'Historisée']);
-
-        // Update sorties to 'Clôturée' if conditions are met
         $clotureeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
             SET s.etat = :etatCloturee 
             WHERE (s.registerLimit <= SIZE(s.users) OR s.dateLimite <= :now)
             AND s.etat != :etatCloturee
             AND s.etat != :etatTerminee
-            AND s.etat != :etatAnnulee' // Ajout de cette condition
+            AND s.etat != :etatAnnulee'
         )
-            ->setParameter('etatCloturee', $etatCloturee)
+            ->setParameter('etatCloturee', $etatMap['Clôturée'])
             ->setParameter('now', $now)
-            ->setParameter('etatTerminee', $etatTerminee)
-            ->setParameter('etatAnnulee', $etatAnnulee);// Ajout du paramètre etatTerminee
+            ->setParameter('etatTerminee', $etatMap['Terminée'])
+            ->setParameter('etatAnnulee', $etatMap['Annulée']);
 
-        // Execute update query for 'Clôturée' sorties
+
         $numUpdatedCloturee = $clotureeQuery->execute();
-
-        // Update sorties to 'Ouverte' if conditions are met
-        $ouverteQuery = $em->createQuery(
-            'UPDATE App\Entity\Sortie s 
-        SET s.etat = :etatOuverte 
-        WHERE ((s.registerLimit > SIZE(s.users) AND s.dateLimite > :now) AND s.etat != :etatOuverte) 
-        AND s.etat != :etatEnCreation
-        AND s.etat != :etatAnnulee'
-        )
-            ->setParameter('etatOuverte', $etatOuverte)
-            ->setParameter('now', $now)
-            ->setParameter('etatEnCreation', $etatEnCreation)
-            ->setParameter('etatAnnulee', $etatAnnulee);
-
-        // Execute update query for 'Ouverte' sorties
-        $numUpdatedOuverte = $ouverteQuery->execute();
 
         $termineeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
-    SET s.etat = :etatTerminee 
-    WHERE (DATE_ADD(s.dateHeureDebut, s.duration, \'MINUTE\')) < :now
-    AND s.etat = :etatCloturee
-        AND s.etat != :etatAnnulee'
+                 SET s.etat = :etatTerminee 
+                 WHERE (DATE_ADD(s.dateHeureDebut, s.duration, \'MINUTE\')) < :now
+                 AND s.etat = :etatCloturee
+                 AND s.etat != :etatAnnulee'
         )
-            ->setParameter('etatTerminee', $etatTerminee)
+            ->setParameter('etatTerminee', $etatMap['Terminée'])
             ->setParameter('now', $now)
-            ->setParameter('etatCloturee', $etatCloturee)
-            ->setParameter('etatAnnulee', $etatAnnulee);
+            ->setParameter('etatCloturee', $etatMap['Clôturée'])
+            ->setParameter('etatAnnulee', $etatMap['Annulée']);
 
         $numUpdatedTerminee = $termineeQuery->execute();
 
-         $historiseeQuery = $em->createQuery(
-             'UPDATE App\Entity\Sortie s
-            SET s.etat = :etatHistorisee
-            WHERE s.dateHeureDebut <= :oneMonthAgo
-            AND s.etat != :etatHistorisee'
-         )
-             ->setParameter('etatHistorisee', $etatHistorisee)
-             ->setParameter('oneMonthAgo', $oneMonthAgo);
+        $historiseeQuery = $em->createQuery(
+            'UPDATE App\Entity\Sortie s
+                 SET s.etat = :etatHistorisee
+                 WHERE s.dateHeureDebut <= :oneMonthAgo
+                 AND s.etat != :etatHistorisee'
+        )
+            ->setParameter('etatHistorisee', $etatMap['Historisée'])
+            ->setParameter('oneMonthAgo', $oneMonthAgo);
 
         $numUpdatedHistorisee = $historiseeQuery->execute();
 
 
 
         // Return the total number of updated sorties
-        return $numUpdatedCloturee + $numUpdatedOuverte + $numUpdatedTerminee + $numUpdatedHistorisee;
+        return $numUpdatedCloturee + $numUpdatedTerminee + $numUpdatedHistorisee;
     }
 
 }
