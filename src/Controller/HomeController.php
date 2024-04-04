@@ -134,10 +134,8 @@ class HomeController extends AbstractController
 
         $sortie->addUser($user);
         if (count($sortie->getUsers()) >= $sortie->getRegisterLimit()) {
-            // Trouver l'état "Clôturée"
             $etatCloturee = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Clôturée']);
             $sortie->setEtat($etatCloturee);
-
         }
         $entityManager->flush();
 
@@ -158,6 +156,7 @@ class HomeController extends AbstractController
     {
         $sortie = $sortieRepository->find($id);
         $user = $this->getUser();
+        $date = new \DateTime("now", new \DateTimeZone('Europe/Paris'));
 
         if (!$sortie || !$user) {
             throw $this->createNotFoundException('Sortie ou Utilisateur introuvable.');
@@ -173,21 +172,24 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
-        if ($sortie->getUsers()->contains($user)) {
-            $sortie->removeUser($user);
-            $entityManager->flush();
-            $now = new \DateTime();
-            if ($sortie->getUsers()->count() < $sortie->getRegisterLimit() && $sortie->getDateLimite() > $now) {
-                $etatOuverte = $entityManager->getRepository(Etat::class)->findOneBy(['libelle'=> 'Ouverte']);
-                $sortie->setEtat($etatOuverte);
-                $entityManager->flush();
-            }
-        }
         $sortie->removeUser($user);
+
+        $dateLimite = $sortie->getDateLimite()->format('Y-m-d H:i:s');
+        $dateString = $date->format('Y-m-d H:i:s');
+
+        if ($dateLimite < $dateString) {
+            $etatCloturee = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Clôturée']);
+            $sortie->setEtat($etatCloturee);
+        } elseif ($sortie->getDateLimite() > $date && count($sortie->getUsers()) < $sortie->getRegisterLimit()) {
+            $etatOuverte = $entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'Ouverte']);
+            $sortie->setEtat($etatOuverte);
+        }
         $entityManager->flush();
 
         $this->addFlash('success', 'Vous avez été désinscrit de la sortie.');
         return $this->redirectToRoute('app_home');
     }
+
+
 
 }

@@ -28,21 +28,6 @@ class SortieService
             $etatMap[$etat->getLibelle()] = $etat;
         }
 
-        $clotureeQuery = $em->createQuery(
-            'UPDATE App\Entity\Sortie s 
-            SET s.etat = :etatCloturee 
-            WHERE (s.registerLimit <= SIZE(s.users) OR s.dateLimite <= :now)
-            AND s.etat != :etatCloturee
-            AND s.etat != :etatTerminee
-            AND s.etat != :etatAnnulee'
-        )
-            ->setParameter('etatCloturee', $etatMap['Clôturée'])
-            ->setParameter('now', $now)
-            ->setParameter('etatTerminee', $etatMap['Terminée'])
-            ->setParameter('etatAnnulee', $etatMap['Annulée']);
-
-
-        $numUpdatedCloturee = $clotureeQuery->execute();
 
         $termineeQuery = $em->createQuery(
             'UPDATE App\Entity\Sortie s 
@@ -72,7 +57,7 @@ class SortieService
 
 
         // Return the total number of updated sorties
-        return $numUpdatedCloturee + $numUpdatedTerminee + $numUpdatedHistorisee;
+        return  $numUpdatedTerminee + $numUpdatedHistorisee;
     }
 
 }
